@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -ex
+
+# This is the master script for the capsule. When you click "Reproducible Run", the code in this file will execute.
+
+#python preprocessing_entry.py --dataset=yahoo-movies
+
+#python searches_entry.py --dataset=yahoo-movies --recommender=SVD
+
+python processing_entry.py --dataset=yahoo-movies --recommender=SVD
+
+python postprocessing_entry.py --dataset=yahoo-movies --recommender=SVD --tradeoff=LIN --relevance=NDCG --distribution=CWS --weight=VAR
+
+#python metrics_entry.py --dataset=yahoo-movies --recommender=SVD --tradeoff=LIN --calibration=KL
+#
+#python decision.py --dataset=yahoo-movies --recommender=SVD --tradeoff=LIN --calibration=KL
+
+#python preprocessing_entry.py --dataset=ml-1m
+
+#python searches_entry.py --dataset=ml-1m --recommender=SVD
+
+#python processing_entry.py --dataset=ml-1m --recommender=SVD
+
+#python postprocessing_entry.py --dataset=ml-1m --recommender=SVD
+
+#python metrics_entry.py --dataset=ml-1m --recommender=SVD --tradeoff=LIN --calibration=KL
+
+#python decision.py --dataset=ml-1m --recommender=SVD --tradeoff=LIN --calibration=KL
