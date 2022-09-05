@@ -1,10 +1,9 @@
 import json
 import logging
 
-from surprise import SVD, KNNBasic
-from surprise.model_selection import RandomizedSearchCV
-from surprise.prediction_algorithms.co_clustering import CoClustering
-from surprise.prediction_algorithms.matrix_factorization import SVDpp, NMF
+from sklearn.cluster import KMeans
+from sklearn.decomposition import NMF
+from sklearn.neural_network import BernoulliRBM
 
 from processing.conversions.pandas_surprise import PandasSurprise
 from datasets.registred_datasets import RegisteredDataset
@@ -25,26 +24,17 @@ class UnsupervisedLearning:
     def __init__(self, cluster: str, distribution: str, dataset: str):
         self.measures = ['mae']
         self.dataset = RegisteredDataset.load_dataset(dataset)
-        self.recommender_name = recommender
-        self.recommender = None
+        self.algorithm_name = cluster
+        self.algorithm_instance = None
         self.params = None
-        if cluster == Label.SVD:
-            self.recommender = SVD
+        if cluster == Label.KMEANS:
+            self.algorithm_instance = KMeans
             self.params = SurpriseParams.SVD_SEARCH_PARAMS
         elif cluster == Label.NMF:
-            self.recommender = NMF
+            self.algorithm_instance = NMF
             self.params = SurpriseParams.NMF_SEARCH_PARAMS
-        elif cluster == Label.CO_CLUSTERING:
-            self.recommender = CoClustering
-            self.params = SurpriseParams.CLUSTERING_SEARCH_PARAMS
-        elif cluster == Label.ITEM_KNN_BASIC:
-            self.recommender = KNNBasic
-            self.params = SurpriseParams.ITEM_KNN_SEARCH_PARAMS
-        elif cluster == Label.USER_KNN_BASIC:
-            self.recommender = KNNBasic
-            self.params = SurpriseParams.USER_KNN_SEARCH_PARAMS
         else:
-            self.recommender = SVDpp
+            self.algorithm_instance = BernoulliRBM
             self.params = SurpriseParams.SVDpp_SEARCH_PARAMS
 
     def __search(self):
