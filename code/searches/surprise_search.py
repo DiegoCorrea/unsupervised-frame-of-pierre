@@ -6,10 +6,10 @@ from surprise.model_selection import RandomizedSearchCV
 from surprise.prediction_algorithms.co_clustering import CoClustering
 from surprise.prediction_algorithms.matrix_factorization import SVDpp, NMF
 
-from conversions.pandas_surprise import PandasSurprise
+from processing.conversions.pandas_surprise import PandasSurprise
 from datasets.registred_datasets import RegisteredDataset
 from settings.constants import Constants
-from .surprise_params import SurpriseParams
+from surprise_params import SurpriseParams
 from settings.labels import Label
 
 from settings.path_dir_file import PathDirFile

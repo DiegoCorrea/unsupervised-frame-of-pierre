@@ -11,6 +11,14 @@ class Label:
     BIAS_VALUE = 'BIAS_VALUE'
 
     ########################################################
+    # Preprocessing labels
+    DATASET_SPLIT = 'SPLIT'
+    DATASET_CHART = 'CHARTS'
+    DATASET_ANALYZE = 'ANALYZE'
+
+    PREPROCESSING_OPTS = [DATASET_SPLIT, DATASET_CHART, DATASET_ANALYZE]
+
+    ########################################################
     # Recommenders labels
     USER_KNN_BASIC = 'USER_KNN_BASIC'
     ITEM_KNN_BASIC = 'ITEM_KNN_BASIC'

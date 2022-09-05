@@ -7,7 +7,7 @@ from surprise.prediction_algorithms.co_clustering import CoClustering
 from surprise.prediction_algorithms.matrix_factorization import SVDpp
 from surprise.prediction_algorithms.slope_one import SlopeOne
 
-from conversions.pandas_surprise import PandasSurprise
+from processing.conversions.pandas_surprise import PandasSurprise
 from datasets.registred_datasets import RegisteredDataset
 from settings.constants import Constants
 from settings.labels import Label

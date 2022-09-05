@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from pandas import DataFrame, read_csv
+
 
 class PathDirFile:
     # Base Path
@@ -40,31 +42,35 @@ class PathDirFile:
 
     # ########################################################################################### #
     # Pre-processing step methods
+    # ########################################################################################### #
     @staticmethod
-    def set_preprocessing_time_file(dataset: str) -> str:
+    def save_split_time_file(data_df: DataFrame, dataset: str):
         """
-        Method to set the file path, which deal with the preprocessing execution time.
+        Method to save the time file expended on the dataset split, which deal with the preprocessing execution time.
+        Save into: data/app/{dataset}/time/split/TIME.csv
+
+        :param data_df: A DataFrame instance to be saved.
 
         :param dataset: A string that's representing the dataset name.
-
-        :return: A string like data/app/{dataset}/preprocessing/time.csv.
         """
-        save_in_dir = "/".join([PathDirFile.DATA_DIR, 'app', dataset, 'time', 'preprocessing'])
+        save_in_dir = "/".join([PathDirFile.DATA_DIR, 'app', dataset, 'time', 'split'])
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
-        return "/".join([save_in_dir, PathDirFile.TIME_FILE])
+
+        data_df.to_csv("/".join([save_in_dir, PathDirFile.TIME_FILE]))
 
     @staticmethod
-    def get_preprocessing_time_file(dataset: str) -> str:
+    def load_split_time_file(dataset: str) -> DataFrame:
         """
-        Method to get the file path, which deal with the preprocessing execution time.
+        Method to load the time file, which deal with the preprocessing execution time.
+        Load from: data/app/{dataset}/time/split/time.csv
 
         :param dataset: A string that's representing the dataset name.
 
-        :return: A string like data/app/{dataset}/preprocessing/time.csv.
+        :return: A loaded DataFrame instance.
         """
-        save_in_dir = "/".join([PathDirFile.DATA_DIR, 'app', dataset, 'time', 'preprocessing'])
-        return "/".join([save_in_dir, PathDirFile.TIME_FILE])
+        save_in_dir = "/".join([PathDirFile.DATA_DIR, 'app', dataset, 'time', 'split'])
+        return read_csv("/".join([save_in_dir, PathDirFile.TIME_FILE]))
 
     @staticmethod
     def set_log_preprocessing_path(dataset: str) -> str:

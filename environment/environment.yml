@@ -1,4 +1,4 @@
-name: pierre-in-frame
+name: unsupervised-frame-of-pierre
 channels:
   - defaults
 dependencies:
@@ -36,4 +36,4 @@ dependencies:
     - six==1.16.0
     - surprise==0.1
     - threadpoolctl==3.1.0
-prefix: /home/lowe/anaconda3/envs/pierre-in-frame
+prefix: /home/lowe/anaconda3/envs/unsupervised-frame-of-pierre
