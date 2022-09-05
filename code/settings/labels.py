@@ -42,6 +42,20 @@ class Label:
     REGISTERED_RECOMMENDERS = SURPRISE_RECOMMENDERS
 
     ########################################################
+
+    CLUSTERING = 'CLUSTERING'
+    RECOMMENDER = 'RECOMMENDER'
+
+    SEARCH_OPTS = [CLUSTERING, RECOMMENDER]
+
+    ########################################################
+    # Clustering labels
+    KMEANS = 'KMEANS'
+    DEFAULT_CLUSTERING = KMEANS
+
+    REGISTERED_CLUSTERS = [KMEANS]
+
+    ########################################################
     # Evaluation Metric labels
     # # Ranking Metrics
     MAP = 'MAP'

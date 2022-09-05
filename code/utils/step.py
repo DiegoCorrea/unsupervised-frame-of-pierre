@@ -1,4 +1,5 @@
 import logging
+import time
 import os
 import platform
 import socket
@@ -18,6 +19,8 @@ class Step:
         TODO: Docstring
         """
         self.experimental_settings = None
+        self.start_time = None
+        self.finish_time = None
 
     def read_the_entries(self):
         """
@@ -47,3 +50,21 @@ class Step:
         logger.info(" ".join(['>>', 'N Cores:', str(Constants.N_CORES)]))
         logger.info(" ".join(['>>', 'Machine RAM:', str(Constants.MEM_RAM)]))
         logger.info(" ".join(['>>', 'Machine Name:', node]))
+
+    def start_count(self):
+        self.start_time = time.time()
+        logger.info('ooo start at ' + time.strftime('%H:%M:%S'))
+
+    def get_start_time(self):
+        return self.start_time
+
+    def finish_count(self):
+        self.finish_time = time.time()
+        logger.info('XXX stop at ' + time.strftime('%H:%M:%S'))
+
+    def get_finish_time(self):
+        return self.finish_time
+
+    def get_total_time(self):
+        return self.finish_time - self.start_time
+
