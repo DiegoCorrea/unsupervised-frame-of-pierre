@@ -17,30 +17,30 @@ from settings.path_dir_file import PathDirFile
 logger = logging.getLogger(__name__)
 
 
-class SurpriseSearch:
+class UnsupervisedLearning:
     """
     Class used to lead with the Random Search
     """
 
-    def __init__(self, recommender: str, dataset: str):
+    def __init__(self, cluster: str, distribution: str, dataset: str):
         self.measures = ['mae']
         self.dataset = RegisteredDataset.load_dataset(dataset)
         self.recommender_name = recommender
         self.recommender = None
         self.params = None
-        if recommender == Label.SVD:
+        if cluster == Label.SVD:
             self.recommender = SVD
             self.params = SurpriseParams.SVD_SEARCH_PARAMS
-        elif recommender == Label.NMF:
+        elif cluster == Label.NMF:
             self.recommender = NMF
             self.params = SurpriseParams.NMF_SEARCH_PARAMS
-        elif recommender == Label.CO_CLUSTERING:
+        elif cluster == Label.CO_CLUSTERING:
             self.recommender = CoClustering
             self.params = SurpriseParams.CLUSTERING_SEARCH_PARAMS
-        elif recommender == Label.ITEM_KNN_BASIC:
+        elif cluster == Label.ITEM_KNN_BASIC:
             self.recommender = KNNBasic
             self.params = SurpriseParams.ITEM_KNN_SEARCH_PARAMS
-        elif recommender == Label.USER_KNN_BASIC:
+        elif cluster == Label.USER_KNN_BASIC:
             self.recommender = KNNBasic
             self.params = SurpriseParams.USER_KNN_SEARCH_PARAMS
         else:

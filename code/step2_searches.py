@@ -4,6 +4,7 @@ import time
 
 import pandas as pd
 
+from searches.cluster_search import UnsupervisedLearning
 from searches.recommender_search import SurpriseSearch
 from settings.labels import Label
 from settings.logging_settings import setup_logging
@@ -57,7 +58,30 @@ class PierreStep2(Step):
         """
         TODO: Docstring
         """
-        pass
+        # Starting the counter
+        self.start_count()
+        # Executing the Random Search
+        search_instance = UnsupervisedLearning(
+            cluster=self.experimental_settings['cluster'],
+            distribution=self.experimental_settings['distribution'],
+            dataset=self.experimental_settings['dataset']
+        )
+        search_instance.fit()
+        # Finishing the counter
+        self.finish_count()
+        total_time = datetime.timedelta(seconds=self.get_total_time())
+        time_df = pd.DataFrame({
+            "stated_at": [self.get_start_time()],
+            "finished_at": [self.get_finish_time()],
+            "total": [total_time]
+        })
+        # Saving execution time
+        time_df.to_csv(PathDirFile.set_search_time_file(
+            dataset=self.experimental_settings['dataset'],
+            recommender=self.experimental_settings['recommender'])
+        )
+        # Finishing the Step
+        logger.info(" ".join(['->>', 'Time Execution:', str(total_time)]))
 
     def search_recommender(self):
         """
