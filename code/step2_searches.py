@@ -98,7 +98,7 @@ class PierreStep2(Step):
         self.finish_count()
         total_time = datetime.timedelta(seconds=self.get_total_time())
         time_df = pd.DataFrame({
-            "stated_at": [self.get_start_time()],
+            "started_at": [self.get_start_time()],
             "finished_at": [self.get_finish_time()],
             "total": [total_time]
         })
