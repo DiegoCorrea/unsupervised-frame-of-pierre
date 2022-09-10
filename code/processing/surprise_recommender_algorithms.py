@@ -1,4 +1,3 @@
-import json
 import logging
 
 import pandas as pd
@@ -7,11 +6,11 @@ from surprise.prediction_algorithms.co_clustering import CoClustering
 from surprise.prediction_algorithms.matrix_factorization import SVDpp
 from surprise.prediction_algorithms.slope_one import SlopeOne
 
-from processing.conversions.pandas_surprise import PandasSurprise
 from datasets.registred_datasets import RegisteredDataset
+from processing.conversions.pandas_surprise import PandasSurprise
 from settings.constants import Constants
 from settings.labels import Label
-from settings.path_dir_file import PathDirFile
+from settings.save_and_load import SaveAndLoad
 
 logger = logging.getLogger(__name__)
 
@@ -42,37 +41,48 @@ class SurpriseRecommenderAlgorithm:
         if self.recommender_name == Label.SLOPE:
             self.recommender = SlopeOne()
         else:
-            path_to_open = PathDirFile.get_hyperparameter_file(self.dataset.system_name, self.recommender_name)
-            with open(path_to_open) as json_file:
-                params = json.load(json_file)
-                if self.recommender_name == Label.SVD:
-                    self.recommender = SVD(n_factors=params['n_factors'], n_epochs=params['n_epochs'],
-                                           lr_all=params['lr_all'], reg_all=params['reg_all'], biased=True,
-                                           random_state=42, verbose=True)
-                elif self.recommender_name == Label.NMF:
-                    self.recommender = NMF(n_factors=params['n_factors'], n_epochs=params['n_epochs'],
-                                           reg_bi=params['reg_bi'], reg_pu=params['reg_pu'],
-                                           reg_qi=params['reg_qi'], reg_bu=params['reg_bu'],
-                                           lr_bu=params['lr_bu'], lr_bi=params['lr_bi'],
-                                           biased=params['biased'],
-                                           random_state=42, verbose=True)
-                elif self.recommender_name == Label.CO_CLUSTERING:
-                    self.recommender = CoClustering(n_epochs=params['n_epochs'],
-                                                    n_cltr_u=params['n_cltr_u'], n_cltr_i=params['n_cltr_i'],
-                                                    verbose=True)
-                elif self.recommender_name == Label.ITEM_KNN_BASIC:
-                    self.recommender = KNNBasic(k=params['k'], sim_options=params['sim_options'], verbose=True)
-                elif self.recommender_name == Label.USER_KNN_BASIC:
-                    self.recommender = KNNBasic(k=params['k'], sim_options=params['sim_options'], verbose=True)
-                elif self.recommender_name == Label.SVDpp:
-                    self.recommender = SVDpp(n_factors=params['n_factors'], n_epochs=params['n_epochs'],
-                                             lr_all=params['lr_all'], reg_all=params['reg_all'],
-                                             random_state=42, verbose=True)
+            params = SaveAndLoad.load_hyperparameters(
+                dataset=self.dataset.system_name, algorithm=self.recommender_name
+            )
+            if self.recommender_name == Label.SVD:
+                self.recommender = SVD(
+                    n_factors=params['n_factors'], n_epochs=params['n_epochs'],
+                    lr_all=params['lr_all'], reg_all=params['reg_all'], biased=True,
+                    random_state=42, verbose=True
+                )
+            elif self.recommender_name == Label.NMF:
+                self.recommender = NMF(
+                    n_factors=params['n_factors'], n_epochs=params['n_epochs'],
+                    reg_bi=params['reg_bi'], reg_pu=params['reg_pu'],
+                    reg_qi=params['reg_qi'], reg_bu=params['reg_bu'],
+                    lr_bu=params['lr_bu'], lr_bi=params['lr_bi'],
+                    biased=params['biased'],
+                    random_state=42, verbose=True
+                )
+            elif self.recommender_name == Label.CO_CLUSTERING:
+                self.recommender = CoClustering(
+                    n_epochs=params['n_epochs'],
+                    n_cltr_u=params['n_cltr_u'], n_cltr_i=params['n_cltr_i'],
+                    verbose=True
+                )
+            elif self.recommender_name == Label.ITEM_KNN_BASIC:
+                self.recommender = KNNBasic(k=params['k'], sim_options=params['sim_options'], verbose=True)
+            elif self.recommender_name == Label.USER_KNN_BASIC:
+                self.recommender = KNNBasic(k=params['k'], sim_options=params['sim_options'], verbose=True)
+            elif self.recommender_name == Label.SVDpp:
+                self.recommender = SVDpp(
+                    n_factors=params['n_factors'], n_epochs=params['n_epochs'],
+                    lr_all=params['lr_all'], reg_all=params['reg_all'],
+                    random_state=42, verbose=True
+                )
 
-    def _user_unkown_items(self, users_preferences: pd.DataFrame, user_id: str) -> pd.DataFrame:
-        user_unkown_items_ids = set(self.all_items_ids) - set(users_preferences['ITEM_ID'].unique().tolist())
+    def _user_unknown_items(self, users_preferences: pd.DataFrame, user_id: str) -> pd.DataFrame:
+        """
+        TODO: Docstring
+        """
+        user_unknown_items_ids = set(self.all_items_ids) - set(users_preferences['ITEM_ID'].unique().tolist())
         unk_df = pd.DataFrame()
-        unk_df[Label.ITEM_ID] = list(user_unkown_items_ids)
+        unk_df[Label.ITEM_ID] = list(user_unknown_items_ids)
         unk_df[Label.USER_ID] = user_id
         unk_df[Label.TRANSACTION_VALUE] = 0
         return unk_df
@@ -100,22 +110,27 @@ class SurpriseRecommenderAlgorithm:
         logger.info(">>> Fit the recommender algorithm")
         users_preferences = self.dataset.get_train_transactions(fold=self.fold, trial=self.trial)
         self.recommender.fit(PandasSurprise.pandas_transform_trainset_to_surprise(users_preferences))
+
         # Load test data
         logger.info(">>> Get the test set")
         self.all_items = self.dataset.get_items()
         self.all_items_ids = self.all_items['ITEM_ID'].unique().tolist()
         user_list = users_preferences[Label.USER_ID].unique()
+
         # Predict the recommendation list
         logger.info(">>> Predicting...")
         result_list = [self.__predict(
-            user_test_set=self._user_unkown_items(users_preferences[users_preferences[Label.USER_ID] == user_id],
-                                                  user_id=user_id)
+            user_test_set=self._user_unknown_items(
+                users_preferences[users_preferences[Label.USER_ID] == user_id],
+                user_id=user_id
+            )
         ) for user_id in user_list]
         merged_results_df = pd.concat(result_list)
+
         # Save all recommendation lists
         logger.info(">>> Saving...")
-        merged_results_df.to_csv(
-            PathDirFile.set_candidate_items_file(dataset=self.dataset.system_name, recommender=self.recommender_name,
-                                            fold=self.fold, trial=self.trial),
-            index=False
+        SaveAndLoad.save_candidate_items(
+            data=merged_results_df,
+            dataset=self.dataset.system_name, algorithm=self.recommender_name,
+            fold=self.fold, trial=self.trial
         )

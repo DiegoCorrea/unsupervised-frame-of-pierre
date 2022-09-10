@@ -1,8 +1,10 @@
+import datetime
 import logging
 import time
 import os
 import platform
 import socket
+from pandas import DataFrame
 
 from settings.constants import Constants
 
@@ -21,6 +23,7 @@ class Step:
         self.experimental_settings = None
         self.start_time = None
         self.finish_time = None
+        self.time_data_df = None
 
     def read_the_entries(self):
         """
@@ -61,6 +64,15 @@ class Step:
     def finish_count(self):
         self.finish_time = time.time()
         logger.info('XXX stop at ' + time.strftime('%H:%M:%S'))
+
+    def clock_data(self) -> DataFrame:
+        total_time = datetime.timedelta(seconds=self.get_total_time())
+        self.time_data_df = DataFrame({
+            "stated_at": [self.get_start_time()],
+            "finished_at": [self.get_finish_time()],
+            "total": [total_time]
+        })
+        return self.time_data_df
 
     def get_finish_time(self):
         return self.finish_time

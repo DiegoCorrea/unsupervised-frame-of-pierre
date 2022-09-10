@@ -1,78 +1,181 @@
-import datetime
 import logging
-import time
 
-import pandas as pd
 from joblib import Parallel, delayed
 
 from processing.surprise_recommender_algorithms import SurpriseRecommenderAlgorithm
 from settings.constants import Constants
+from settings.labels import Label
 from settings.logging_settings import setup_logging
 from settings.path_dir_file import PathDirFile
-from utils.machine_information import machine_information
-from utils.read_from_terminal import read_input_to_processing
+from settings.save_and_load import SaveAndLoad
+from utils.input import Input
+from utils.step import Step
 
 logger = logging.getLogger(__name__)
 
 
-def starting_processing(dataset: str, recommender: str, trial: int, fold: int):
+class PierreStep3(Step):
     """
-    Function to starting the processing and run the recommender algorithm.
+    TODO: Docstring
+    """
 
-    :param dataset: A string that's representing the dataset name.
-    :param recommender: A string that's representing the recommender algorithm name.
-    :param trial: The trial number.
-    :param fold: The fold number.
-    """
-    # Setup Log configuration
-    setup_logging(log_error="error.log", log_info="info.log",
-                  save_path=PathDirFile.set_log_processing_path(dataset=dataset, recommender=recommender,
-                                                           trial=trial, fold=fold))
-    logger.info("$" * 50)
-    # Logging machine data
-    machine_information()
-    logger.info("-" * 50)
-    # Logging the experiment setup
-    logger.info("RECOMMENDER ALGORITHM (PROCESSING STEP)")
-    logger.info(" ".join(['>>', 'Recommender:', recommender]))
-    logger.info(" ".join(['>>', 'Dataset:', dataset]))
-    logger.info(" ".join(['>>', 'Trial:', str(trial)]))
-    logger.info(" ".join(['>>', 'Fold:', str(fold)]))
-    logger.info("$" * 50)
-    # Starting the counter
-    start_time = time.time()
-    logger.info('ooo start at ' + time.strftime('%H:%M:%S'))
-    # Executing the processing step
-    recommender_algorithm = SurpriseRecommenderAlgorithm(dataset_name=dataset, trial=trial,
-                                                         recommender_name=recommender, fold=fold)
-    recommender_algorithm.run()
-    # Finishing the counter
-    finish_time = time.time()
-    logger.info('XXX stop at ' + time.strftime('%H:%M:%S'))
-    total_time = datetime.timedelta(seconds=finish_time - start_time)
-    time_df = pd.DataFrame({"stated_at": [start_time], "finished_at": [finish_time], "total": [total_time]})
-    # Saving execution time
-    time_df.to_csv(
-        PathDirFile.set_processing_time_file(dataset=dataset, trial=trial, recommender=recommender, fold=fold))
+    def read_the_entries(self):
+        """
+        TODO: Docstring
+        """
+        self.experimental_settings = Input.step3()
 
+    @staticmethod
+    def set_the_logfile_by_instance(dataset: str, algorithm: str, trial: int, fold: int):
+        """
+        TODO: Docstring
+        """
+        # Setup Log configuration
+        setup_logging(
+            log_error="error.log", log_info="info.log",
+            save_path=PathDirFile.set_log_processing_path(
+                algorithm=algorithm,
+                trial=trial,
+                fold=fold,
+                dataset=dataset
+            )
+        )
 
-def main():
-    """
-    Main function to start the processing step
-    """
-    experimental_setup = read_input_to_processing()
-    # Starting the recommender algorithm
-    Parallel(n_jobs=Constants.N_CORES)(
-        delayed(starting_processing)(recommender=experimental_setup['recommender'],
-                                     dataset=experimental_setup['dataset'],
-                                     trial=trial + 1, fold=fold + 1) for fold in
-        range(Constants.K_FOLDS_VALUE) for trial in range(Constants.N_TRIAL_VALUE))
-    # Finishing the Step
-    logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
+    def print_basic_info_by_instance(self, dataset: str, algorithm: str, trial: int, fold: int):
+        """
+        TODO: Docstring
+        """
+
+        logger.info("$" * 50)
+        logger.info("$" * 50)
+        # Logging machine data
+        self.machine_information()
+        logger.info("-" * 50)
+
+        # Logging the experiment setup
+        logger.info("[PROCESSING STEP] - RECOMMENDER/CLUSTERING ALGORITHM")
+        logger.info(" ".join(['>>', 'Dataset:', dataset]))
+        logger.info(" ".join(['>>', 'Trial:', str(trial)]))
+        logger.info(" ".join(['>>', 'Fold:', str(fold)]))
+        logger.info(" ".join(['>>', 'Algorithm:', algorithm]))
+        logger.info("$" * 50)
+        logger.info("$" * 50)
+
+    def main(self):
+        """
+        TODO: Docstring
+        """
+        if self.experimental_settings['opt'] == Label.CLUSTERING:
+            self.cluster_parallelization()
+        else:
+            self.recommender_parallelization()
+
+    def recommender_parallelization(self):
+        """
+        Main method to start the processing step in parallel.
+        """
+        # Starting the recommender algorithm
+        Parallel(n_jobs=Constants.N_CORES)(delayed(self.starting_recommender)(
+            recommender=self.experimental_settings['recommender'],
+            dataset=self.experimental_settings['dataset'],
+            trial=trial, fold=fold
+        ) for fold in range(1, Constants.K_FOLDS_VALUE + 1) for trial in range(1, Constants.N_TRIAL_VALUE + 1))
+        # Finishing the Step
+        logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
+
+    def cluster_parallelization(self):
+        """
+        Main method to start the processing step in parallel.
+        """
+        # Starting the recommender algorithm
+        Parallel(n_jobs=Constants.N_CORES)(delayed(self.starting_cluster)(
+            cluster=self.experimental_settings['cluster'],
+            dataset=self.experimental_settings['dataset'],
+            trial=trial, fold=fold
+        ) for fold in range(1, Constants.K_FOLDS_VALUE + 1) for trial in range(1, Constants.N_TRIAL_VALUE + 1))
+        # Finishing the Step
+        logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
+
+    def starting_recommender(self, dataset: str, recommender: str, trial: int, fold: int):
+        """
+        Function to starting the recommender algorithm.
+
+        :param dataset: A string that's representing the dataset name.
+        :param recommender: A string that's representing the recommender algorithm name.
+        :param trial: The trial number.
+        :param fold: The fold number.
+        """
+        self.set_the_logfile_by_instance(
+            dataset=dataset, trial=trial, fold=fold, algorithm=recommender
+        )
+        self.print_basic_info_by_instance(
+            dataset=dataset, trial=trial, fold=fold, algorithm=recommender
+        )
+
+        # Starting the counter
+        self.start_count()
+
+        # Executing the processing step
+        recommender_algorithm = SurpriseRecommenderAlgorithm(
+            dataset_name=dataset, trial=trial, fold=fold, recommender_name=recommender
+        )
+        recommender_algorithm.run()
+
+        # Finishing the counter
+        self.finish_count()
+
+        # Saving execution time
+        SaveAndLoad.save_processing_time(
+            data=self.clock_data(),
+            dataset=dataset, trial=trial, fold=fold, algorithm=recommender
+        )
+
+    def starting_cluster(self, dataset: str, cluster: str, trial: int, fold: int):
+        """
+        Function to starting the processing and run the recommender algorithm.
+
+        :param dataset: A string that's representing the dataset name.
+        :param cluster: A string that's representing the cluster algorithm name.
+        :param trial: The trial number.
+        :param fold: The fold number.
+        """
+        self.set_the_logfile_by_instance(
+            dataset=dataset, trial=trial, fold=fold, algorithm=cluster
+        )
+        self.print_basic_info_by_instance(
+            dataset=dataset, trial=trial, fold=fold, algorithm=cluster
+        )
+
+        # Starting the counter
+        self.start_count()
+
+        # Executing the Random Search
+        # search_instance = UnsupervisedLearning(
+        #     cluster=self.experimental_settings['cluster'],
+        #     distribution=self.experimental_settings['distribution'],
+        #     dataset=self.experimental_settings['dataset']
+        # )
+        # search_instance.fit()
+
+        # Finishing the counter
+        self.finish_count()
+
+        # Saving execution time
+        SaveAndLoad.save_processing_time(
+            data=self.clock_data(),
+            dataset=self.experimental_settings['dataset'],
+            trial=self.experimental_settings['trial'],
+            fold=self.experimental_settings['fold'],
+            algorithm=self.experimental_settings['cluster']
+        )
 
 
 if __name__ == '__main__':
     """
-    Start the processing step
+    It starts the processing step
     """
-    main()
+    logger.info(" ".join(['+' * 10, 'System Starting', '+' * 10]))
+    step = PierreStep3()
+    step.read_the_entries()
+    step.main()
+    logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
