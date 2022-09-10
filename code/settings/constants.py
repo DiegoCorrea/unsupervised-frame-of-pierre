@@ -1,5 +1,5 @@
 import multiprocessing
-from settings.utils import get_size
+from utils.utils import get_size
 
 import os
 

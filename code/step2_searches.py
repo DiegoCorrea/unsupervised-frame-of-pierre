@@ -1,9 +1,8 @@
 import logging
 
-from searches.cluster_search import UnsupervisedLearning
-from searches.recommender_search import SurpriseSearch
+from searches.recommender_search import RecommenderSearch
 from settings.labels import Label
-from settings.logging_settings import setup_logging
+from utils.logging_settings import setup_logging
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
 from utils.input import Input
@@ -55,7 +54,7 @@ class PierreStep2(Step):
         """
         TODO: Docstring
         """
-        if self.experimental_settings['opt'] == Label.CLUSTERING:
+        if self.experimental_settings['opt'] == Label.CONFORMITY:
             self.starting_cluster()
         else:
             self.starting_recommender()
@@ -68,22 +67,24 @@ class PierreStep2(Step):
         # Starting the counter
         self.start_count()
 
-        # Executing the Random Search
-        # search_instance = UnsupervisedLearning(
+        # # Executing the Random Search
+        # search_instance = ConformityAlgorithmSearch(
         #     cluster=self.experimental_settings['cluster'],
         #     distribution=self.experimental_settings['distribution'],
         #     dataset=self.experimental_settings['dataset']
         # )
         # search_instance.fit()
-
-        # Finishing the counter
-        self.finish_count()
-
-        # Saving execution time
-        SaveAndLoad.save_search_time(
-            data=self.clock_data(),
-            dataset=self.experimental_settings['dataset'], algorithm=self.experimental_settings['recommender']
-        )
+        #
+        # # Finishing the counter
+        # self.finish_count()
+        #
+        # # Saving execution time
+        # SaveAndLoad.save_search_time(
+        #     data=self.clock_data(),
+        #     dataset=self.experimental_settings['dataset'],
+        #     algorithm=self.experimental_settings['cluster'],
+        #     distribution=self.experimental_settings['distribution']
+        # )
 
     def starting_recommender(self):
         """
@@ -94,7 +95,7 @@ class PierreStep2(Step):
         self.start_count()
 
         # Executing the Random Search
-        search_instance = SurpriseSearch(
+        search_instance = RecommenderSearch(
             recommender=self.experimental_settings['recommender'],
             dataset=self.experimental_settings['dataset'])
         search_instance.fit()

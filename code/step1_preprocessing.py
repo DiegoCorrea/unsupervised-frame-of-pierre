@@ -6,7 +6,7 @@ import pandas as pd
 
 from datasets.registred_datasets import RegisteredDataset
 from settings.labels import Label
-from settings.logging_settings import setup_logging
+from utils.logging_settings import setup_logging
 from settings.path_dir_file import PathDirFile
 from utils.input import Input
 from utils.step import Step

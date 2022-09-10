@@ -20,3 +20,21 @@ class SurpriseParams:
                          "lr_bu": uniform(0.001, 0.01), "lr_bi": uniform(0.001, 0.01), "biased": [True]}
     # 6: Co Clustering
     CLUSTERING_SEARCH_PARAMS = {"n_cltr_u": randint(3, 11), "n_cltr_i": randint(3, 11), "n_epochs": randint(10, 150)}
+
+
+class ConformityParams:
+    # 1: Agglomerative Clustering
+    AGGLOMERATIVE_CLUSTERING_SEARCH_PARAMS = {
+
+    }
+
+    # 2: Bernoulli Restricted Boltzmann Machine (RBM).
+    BERNOULLI_RBM_SEARCH_PARAMS = {
+
+    }
+
+    # 3: K-Means clustering.
+    KMEANS_SEARCH_PARAMS = {
+
+    }
+

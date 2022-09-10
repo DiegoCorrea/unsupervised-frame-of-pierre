@@ -5,7 +5,7 @@ from joblib import Parallel, delayed
 from processing.surprise_recommender_algorithms import SurpriseRecommenderAlgorithm
 from settings.constants import Constants
 from settings.labels import Label
-from settings.logging_settings import setup_logging
+from utils.logging_settings import setup_logging
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
 from utils.input import Input
@@ -53,7 +53,7 @@ class PierreStep3(Step):
         logger.info("-" * 50)
 
         # Logging the experiment setup
-        logger.info("[PROCESSING STEP] - RECOMMENDER/CLUSTERING ALGORITHM")
+        logger.info("[PROCESSING STEP] - RECOMMENDER/CONFORMITY ALGORITHM")
         logger.info(" ".join(['>>', 'Dataset:', dataset]))
         logger.info(" ".join(['>>', 'Trial:', str(trial)]))
         logger.info(" ".join(['>>', 'Fold:', str(fold)]))
@@ -65,7 +65,7 @@ class PierreStep3(Step):
         """
         TODO: Docstring
         """
-        if self.experimental_settings['opt'] == Label.CLUSTERING:
+        if self.experimental_settings['opt'] == Label.CONFORMITY:
             self.cluster_parallelization()
         else:
             self.recommender_parallelization()

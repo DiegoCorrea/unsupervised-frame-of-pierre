@@ -43,17 +43,20 @@ class Label:
 
     ########################################################
 
-    CLUSTERING = 'CLUSTERING'
+    CONFORMITY = 'CONFORMITY'
     RECOMMENDER = 'RECOMMENDER'
 
-    SEARCH_OPTS = [CLUSTERING, RECOMMENDER]
+    SEARCH_OPTS = [CONFORMITY, RECOMMENDER]
 
     ########################################################
     # Clustering labels
     KMEANS = 'KMEANS'
+    AGGLOMERATIVE = 'AGGLOMERATIVE'
+    BERNOULLI_RBM = 'BERNOULLI_RBM'
+
     DEFAULT_CLUSTERING = KMEANS
 
-    REGISTERED_CLUSTERS = [KMEANS]
+    REGISTERED_CLUSTERS = [KMEANS, AGGLOMERATIVE, BERNOULLI_RBM]
 
     ########################################################
     # Evaluation Metric labels

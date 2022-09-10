@@ -9,13 +9,13 @@ from processing.conversions.pandas_surprise import PandasSurprise
 from datasets.registred_datasets import RegisteredDataset
 from settings.constants import Constants
 from settings.save_and_load import SaveAndLoad
-from searches.surprise_params import SurpriseParams
+from searches.parameters import SurpriseParams
 from settings.labels import Label
 
 logger = logging.getLogger(__name__)
 
 
-class SurpriseSearch:
+class RecommenderSearch:
     """
     Class used to lead with the Random Search
     """
@@ -62,6 +62,6 @@ class SurpriseSearch:
         """
         gs = self.__search()
         # Saving
-        SaveAndLoad.save_hyperparameters(
+        SaveAndLoad.save_hyperparameters_recommender(
             best_params=gs.best_params, dataset=self.dataset.system_name, algorithm=self.recommender_name
         )
