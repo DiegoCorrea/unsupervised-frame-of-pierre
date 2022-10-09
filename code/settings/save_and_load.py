@@ -98,3 +98,24 @@ class SaveAndLoad:
             ),
             index=False
         )
+
+    # ########################################################################################### #
+    # [STEP 5] Metrics step methods - Time
+    # ########################################################################################### #
+    @staticmethod
+    def save_conformity_metrics_time(
+            data: DataFrame,
+            cluster: str, metric: str, recommender: str, dataset: str, trial: int, fold: int,
+            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+    ):
+        """
+        TODO: Docstring
+        """
+        data.to_csv(
+            PathDirFile.set_conformity_metrics_time_file(
+                recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                distribution=distribution, fairness=fairness, relevance=relevance,
+                tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector, cluster=cluster, metric=metric
+            ),
+            index=False
+        )

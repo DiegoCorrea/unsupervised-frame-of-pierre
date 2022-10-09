@@ -4,7 +4,6 @@ from joblib import Parallel, delayed
 
 from processing.surprise_recommender_algorithms import SurpriseRecommenderAlgorithm
 from settings.constants import Constants
-from settings.labels import Label
 from utils.logging_settings import setup_logging
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
@@ -24,6 +23,7 @@ class PierreStep3(Step):
         TODO: Docstring
         """
         self.experimental_settings = Input.step3()
+        print(self.experimental_settings)
 
     @staticmethod
     def set_the_logfile_by_instance(dataset: str, algorithm: str, trial: int, fold: int):
@@ -53,7 +53,7 @@ class PierreStep3(Step):
         logger.info("-" * 50)
 
         # Logging the experiment setup
-        logger.info("[PROCESSING STEP] - RECOMMENDER/CONFORMITY ALGORITHM")
+        logger.info("[PROCESSING STEP] - RECOMMENDER ALGORITHM")
         logger.info(" ".join(['>>', 'Dataset:', dataset]))
         logger.info(" ".join(['>>', 'Trial:', str(trial)]))
         logger.info(" ".join(['>>', 'Fold:', str(fold)]))
@@ -65,10 +65,7 @@ class PierreStep3(Step):
         """
         TODO: Docstring
         """
-        if self.experimental_settings['opt'] == Label.CONFORMITY:
-            self.cluster_parallelization()
-        else:
-            self.recommender_parallelization()
+        self.recommender_parallelization()
 
     def recommender_parallelization(self):
         """
@@ -77,19 +74,6 @@ class PierreStep3(Step):
         # Starting the recommender algorithm
         Parallel(n_jobs=Constants.N_CORES)(delayed(self.starting_recommender)(
             recommender=self.experimental_settings['recommender'],
-            dataset=self.experimental_settings['dataset'],
-            trial=trial, fold=fold
-        ) for fold in range(1, Constants.K_FOLDS_VALUE + 1) for trial in range(1, Constants.N_TRIAL_VALUE + 1))
-        # Finishing the Step
-        logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
-
-    def cluster_parallelization(self):
-        """
-        Main method to start the processing step in parallel.
-        """
-        # Starting the recommender algorithm
-        Parallel(n_jobs=Constants.N_CORES)(delayed(self.starting_cluster)(
-            cluster=self.experimental_settings['cluster'],
             dataset=self.experimental_settings['dataset'],
             trial=trial, fold=fold
         ) for fold in range(1, Constants.K_FOLDS_VALUE + 1) for trial in range(1, Constants.N_TRIAL_VALUE + 1))
@@ -128,45 +112,6 @@ class PierreStep3(Step):
         SaveAndLoad.save_processing_time(
             data=self.clock_data(),
             dataset=dataset, trial=trial, fold=fold, algorithm=recommender
-        )
-
-    def starting_cluster(self, dataset: str, cluster: str, trial: int, fold: int):
-        """
-        Function to starting the processing and run the recommender algorithm.
-
-        :param dataset: A string that's representing the dataset name.
-        :param cluster: A string that's representing the cluster algorithm name.
-        :param trial: The trial number.
-        :param fold: The fold number.
-        """
-        self.set_the_logfile_by_instance(
-            dataset=dataset, trial=trial, fold=fold, algorithm=cluster
-        )
-        self.print_basic_info_by_instance(
-            dataset=dataset, trial=trial, fold=fold, algorithm=cluster
-        )
-
-        # Starting the counter
-        self.start_count()
-
-        # Executing the Random Search
-        # search_instance = UnsupervisedLearning(
-        #     cluster=self.experimental_settings['cluster'],
-        #     distribution=self.experimental_settings['distribution'],
-        #     dataset=self.experimental_settings['dataset']
-        # )
-        # search_instance.fit()
-
-        # Finishing the counter
-        self.finish_count()
-
-        # Saving execution time
-        SaveAndLoad.save_processing_time(
-            data=self.clock_data(),
-            dataset=self.experimental_settings['dataset'],
-            trial=self.experimental_settings['trial'],
-            fold=self.experimental_settings['fold'],
-            algorithm=self.experimental_settings['cluster']
         )
 
 

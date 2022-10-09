@@ -60,12 +60,20 @@ class Label:
 
     ########################################################
     # Evaluation Metric labels
+    EVALUATION_METRICS = 'EVALUATION_METRICS'
+    METRIC_OPT = [CONFORMITY, EVALUATION_METRICS]
     # # Ranking Metrics
     MAP = 'MAP'
     MRR = 'MRR'
+    PRECISION = [MAP, MRR]
     # # Calibration Metrics
     MACE = 'MACE'
     MRMC = 'MRMC'
+    CALIBRATION = [MACE, MRMC]
+    # # Time Metrics
+    RUN_TIME = 'TIME'
+
+    REGISTERED_METRICS = [MAP, MRR, MACE, MRMC, RUN_TIME]
 
     ########################################################
     # Post-processing labels #
