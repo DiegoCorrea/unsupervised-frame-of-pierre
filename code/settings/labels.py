@@ -72,6 +72,7 @@ class Label:
     CALIBRATION = [MACE, MRMC]
     # # Time Metrics
     RUN_TIME = 'TIME'
+    SILHOUETTE_SCORE = 'SILHOUETTE_SCORE'
 
     REGISTERED_METRICS = [MAP, MRR, MACE, MRMC, RUN_TIME]
 

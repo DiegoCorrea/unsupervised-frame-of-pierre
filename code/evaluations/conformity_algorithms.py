@@ -1,5 +1,6 @@
 import logging
 
+from pandas import DataFrame
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 from sklearn.neural_network import BernoulliRBM
@@ -33,7 +34,6 @@ class ConformityAlgorithms:
         users_preference_set = self.dataset.get_train_transactions(trial=trial, fold=fold)
         dist_func = distributions_funcs_pandas(distribution)
 
-        self.distribution_name = distribution
         self.distribution_instance = calibration_measures_funcs(measure=distribution)
         self.users_target_dist = pd.concat([
             dist_func(
@@ -55,25 +55,38 @@ class ConformityAlgorithms:
             ) for user_id in self.users_recommendation_lists['USER_ID'].unique().tolist()
         ])
 
-        self.algorithm_name = cluster
+        self.cluster_name = cluster
         self.algorithm_instance = None
+        self.algorithm_predict_instance = None
         self.params = None
         if cluster == Label.KMEANS:
             self.algorithm_instance = KMeans(n_clusters=3)
-            self.params = ConformityParams.KMEANS_SEARCH_PARAMS
         elif cluster == Label.AGGLOMERATIVE:
-            self.algorithm_instance = AgglomerativeClustering
-            self.params = ConformityParams.AGGLOMERATIVE_CLUSTERING_SEARCH_PARAMS
+            self.algorithm_instance = AgglomerativeClustering(n_clusters=3)
         elif cluster == Label.BERNOULLI_RBM:
-            self.algorithm_instance = BernoulliRBM
-            self.params = ConformityParams.BERNOULLI_RBM_SEARCH_PARAMS
+            self.algorithm_instance = BernoulliRBM(n_components=3)
 
     def fit(self):
         """
         TODO
         """
-        clustering = self.algorithm_instance.fit(X=self.users_target_dist)
-        clustering_predict = clustering.predict(X=self.users_recommendation_dist)
-        silhouette_avg = silhouette_score(self.users_target_dist, clustering_predict)
+        self.algorithm_instance = self.algorithm_instance.fit(X=self.users_target_dist)
+        if self.cluster_name == Label.KMEANS:
+            self.algorithm_instance = self.algorithm_instance.predict(X=self.users_recommendation_dist)
+        elif self.cluster_name == Label.AGGLOMERATIVE:
+            self.algorithm_instance = self.algorithm_instance.fit_predict(X=self.users_recommendation_dist)
+
+    def evaluation(
+            self, metrics: list,
+            cluster: str, recommender: str, dataset: str, trial: int, fold: int,
+            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+    ):
+        silhouette_avg = silhouette_score(self.users_target_dist, self.algorithm_instance)
+        data = DataFrame([[silhouette_avg]], columns=[Label.SILHOUETTE_SCORE])
         print("Silhouette avg:", silhouette_avg)
-        print(self.algorithm_instance)
+        SaveAndLoad.save_conformity_metric(
+            data=data, cluster=cluster, metric=Label.SILHOUETTE_SCORE,
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+        )

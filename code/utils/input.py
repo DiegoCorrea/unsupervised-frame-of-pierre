@@ -215,7 +215,17 @@ class Input:
 
         - cluster: TODO: Docstring
 
+        - tradeoff: TODO: Docstring
+
+        - calibration: TODO: Docstring
+
+        - relevance: TODO: Docstring
+
+        - weight: TODO: Docstring
+
         - distribution: TODO: Docstring
+
+        - selector: TODO: Docstring
 
         :return: A dict with the input settings.
         """

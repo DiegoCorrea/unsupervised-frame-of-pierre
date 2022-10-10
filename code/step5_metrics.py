@@ -190,25 +190,31 @@ class PierreStep5(Step):
         self.start_count()
 
         # Executing the Random Search
-        search_instance = ConformityAlgorithms(
+        cluster_instance = ConformityAlgorithms(
             cluster=cluster,
             recommender=recommender, dataset=dataset, trial=trial, fold=fold,
             distribution=distribution, fairness=fairness, relevance=relevance,
             weight=weight, tradeoff=tradeoff, selector=selector
         )
-        search_instance.fit()
+        cluster_instance.fit()
+
+        cluster_instance.evaluation(
+            metrics=metrics, cluster=cluster,
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+        )
 
         # Finishing the counter
         self.finish_count()
 
         # Saving execution time
-        # SaveAndLoad.save_conformity_metrics_time(
-        #     data=self.clock_data(), cluster=cluster,
-        #     metric=cluster,
-        #     recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        #     distribution=distribution, fairness=fairness, relevance=relevance,
-        #     weight=weight, tradeoff=tradeoff, selector=selector
-        # )
+        SaveAndLoad.save_conformity_metric_time(
+            data=self.clock_data(), cluster=cluster,
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+        )
 
     def cluster_parallelization(self):
         """
