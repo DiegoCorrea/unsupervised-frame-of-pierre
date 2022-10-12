@@ -196,14 +196,10 @@ class PierreStep5(Step):
             distribution=distribution, fairness=fairness, relevance=relevance,
             weight=weight, tradeoff=tradeoff, selector=selector
         )
+        cluster_instance.prepare_experiment()
         cluster_instance.fit()
 
-        cluster_instance.evaluation(
-            metrics=metrics, cluster=cluster,
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            weight=weight, tradeoff=tradeoff, selector=selector
-        )
+        cluster_instance.evaluation()
 
         # Finishing the counter
         self.finish_count()

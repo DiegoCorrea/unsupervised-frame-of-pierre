@@ -1,6 +1,6 @@
 import json
 
-from pandas import DataFrame
+from pandas import DataFrame, read_csv
 
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
@@ -84,6 +84,16 @@ class SaveAndLoad:
             index=False
         )
 
+    @staticmethod
+    def load_candidate_items(dataset: str, algorithm: str, trial: int, fold: int):
+        """
+        TODO: Docstring
+        """
+        candidate_items_path = PathDirFile.get_candidate_items_file(
+            dataset=dataset, algorithm=algorithm, fold=fold, trial=trial
+        )
+        return read_csv(candidate_items_path)
+
     # ########################################################################################### #
     # [STEP 3] Processing step methods - Time
     # ########################################################################################### #
@@ -98,6 +108,25 @@ class SaveAndLoad:
             ),
             index=False
         )
+
+    # ########################################################################################### #
+    # [STEP 3] Post-Processing step methods - Recommendation Lists
+    # ########################################################################################### #
+    @staticmethod
+    def load_recommendation_lists(
+        dataset: str, recommender: str, trial: int, fold: int,
+        tradeoff: str, distribution: str, fairness: str, relevance: str,
+        tradeoff_weight: str, select_item: str
+    ):
+        """
+        TODO: Docstring
+        """
+        recommendation_list_path = PathDirFile.get_recommendation_list_file(
+            dataset=dataset, recommender=recommender, trial=trial, fold=fold,
+            tradeoff=tradeoff, distribution=distribution, fairness=fairness,
+            relevance=relevance, tradeoff_weight=tradeoff_weight, select_item=select_item
+        )
+        return read_csv(recommendation_list_path)
 
     # ########################################################################################### #
     # [STEP 5] Metrics step methods - Time
