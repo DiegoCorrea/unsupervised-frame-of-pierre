@@ -170,7 +170,7 @@ class PierreStep5(Step):
         print(load)
 
     def starting_cluster(
-            self, cluster: str, metrics: list, recommender: str, dataset: str, trial: int, fold: int,
+            self, cluster: str, recommender: str, dataset: str, trial: int, fold: int,
             distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str):
         """
         TODO
@@ -217,6 +217,7 @@ class PierreStep5(Step):
         TODO
         """
         combination = [
+            self.experimental_settings['cluster'],
             self.experimental_settings['recommender'], self.experimental_settings['dataset'],
             self.experimental_settings['trial'], self.experimental_settings['fold'],
             self.experimental_settings['distribution'], self.experimental_settings['fairness'],
@@ -226,16 +227,15 @@ class PierreStep5(Step):
 
         load = Parallel(n_jobs=Constants.N_CORES)(
             delayed(self.starting_cluster)(
-                cluster=self.experimental_settings['cluster'],
-                metrics=self.experimental_settings['metrics'],
+                cluster=cluster,
                 recommender=recommender, dataset=dataset, trial=trial, fold=fold,
                 distribution=distribution, fairness=fairness, relevance=relevance,
                 weight=weight, tradeoff=tradeoff, selector=selector
-            ) for recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector
+            ) for cluster, recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector
             in list(itertools.product(*combination)))
 
         # jobs = dict(Counter(load))
-        print(load)
+        # print(load)
 
 
 if __name__ == '__main__':

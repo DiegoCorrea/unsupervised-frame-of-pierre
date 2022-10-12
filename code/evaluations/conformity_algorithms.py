@@ -127,7 +127,8 @@ class ConformityAlgorithms:
 
         data = DataFrame(
             [[user_pref_silhouette_avg], [users_cand_items_silhouette_avg], [users_rec_lists_silhouette_avg]],
-            columns=[Label.SILHOUETTE_SCORE], index=['users_pref', 'users_cand_items', 'users_rec_lists'])
+            columns=[Label.SILHOUETTE_SCORE], index=[Label.USERS_PREF, Label.USERS_CAND_ITEMS, Label.USERS_REC_LISTS]
+        )
 
         print("Silhouette avg:", data)
 
@@ -148,7 +149,8 @@ class ConformityAlgorithms:
 
         data = DataFrame(
             [[users_cand_item_score_float], [user_rec_lists_score_float]],
-            columns=[Label.JACCARD_SCORE], index=['users_cand_items', 'users_rec_lists'])
+            columns=[Label.JACCARD_SCORE], index=[Label.USERS_CAND_ITEMS, Label.USERS_REC_LISTS]
+        )
 
         print("JACCARD SCORE:", data)
 

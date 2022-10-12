@@ -787,6 +787,20 @@ class PathDirFile:
         save_in_dir = "/".join([PathDirFile.RESULTS_DECISION_DIR, dataset])
         return save_in_dir + '/' + PathDirFile.DECISION_FILE
 
+    @staticmethod
+    def set_conformity_metric_file(dataset: str, filename: str, ext: str) -> str:
+        """
+        Method to set the file path, which deal with the decision protocol.
+
+        :param dataset: A string that's representing the dataset name.
+
+        :return: A string like results/decision/{dataset}/decision.csv
+        """
+        save_in_dir = "/".join([PathDirFile.RESULTS_DECISION_DIR, dataset])
+        if not os.path.exists(save_in_dir):
+            os.makedirs(save_in_dir)
+        return "".join([save_in_dir, '/', filename, '.', ext])
+
     # ########################################################################################### #
     # Graphics
     @staticmethod

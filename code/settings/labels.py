@@ -9,6 +9,9 @@ class Label:
     TIME = 'TIMESTAMP'
     ORDER = 'ORDER'
     BIAS_VALUE = 'BIAS_VALUE'
+    USERS_PREF = 'USER_PREF'
+    USERS_CAND_ITEMS = 'USERS_CAND_ITEMS'
+    USERS_REC_LISTS = 'USERS_REC_LISTS'
 
     ########################################################
     # Preprocessing labels
@@ -72,8 +75,12 @@ class Label:
     CALIBRATION = [MACE, MRMC]
     # # Time Metrics
     RUN_TIME = 'TIME'
+
     SILHOUETTE_SCORE = 'SILHOUETTE_SCORE'
     JACCARD_SCORE = 'JACCARD_SCORE'
+    CONFORMITY_DIST_MEANING = 'CONFORMITY_DIST_MEANING'
+
+    REGISTERED_CONFORMITY_METRICS = [SILHOUETTE_SCORE, JACCARD_SCORE]
 
     REGISTERED_METRICS = [MAP, MRR, MACE, MRMC, RUN_TIME]
 

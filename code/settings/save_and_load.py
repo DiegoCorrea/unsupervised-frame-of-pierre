@@ -154,9 +154,9 @@ class SaveAndLoad:
     # ########################################################################################### #
     @staticmethod
     def save_conformity_metric(
-            data: DataFrame,
-            cluster: str, metric: str, recommender: str, dataset: str, trial: int, fold: int,
-            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+        data: DataFrame,
+        cluster: str, metric: str, recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
     ):
         """
         TODO: Docstring
@@ -167,6 +167,45 @@ class SaveAndLoad:
                 distribution=distribution, fairness=fairness, relevance=relevance,
                 tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
                 cluster=cluster, filename=metric + '.csv'
-            ),
-            index=False
+            )
         )
+
+    @staticmethod
+    def load_conformity_metric(
+        cluster: str, metric: str, recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        ext: str = 'csv'
+    ) -> DataFrame:
+        """
+        TODO: Docstring
+        """
+        path = PathDirFile.get_conformity_metric_fold_file_by_name(
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
+            cluster=cluster, filename=metric + '.' + ext
+        )
+        return read_csv(path)
+
+    # ########################################################################################### #
+    # [STEP 6] Compile Metrics step methods - Conformity Evaluation
+    # ########################################################################################### #
+    @staticmethod
+    def save_conformity_metric_compiled(data: DataFrame, dataset: str, metric: str, ext: str = 'csv'):
+        """
+        TODO: Docstring
+        """
+        path = PathDirFile.set_conformity_metric_file(
+            dataset=dataset, filename=metric, ext=ext
+        )
+        data.to_csv(path)
+
+    @staticmethod
+    def load_conformity_metric_compiled(dataset: str, metric: str, ext: str = 'csv') -> DataFrame:
+        """
+        TODO: Docstring
+        """
+        path = PathDirFile.set_conformity_metric_file(
+            dataset=dataset, filename=metric, ext=ext
+        )
+        return read_csv(path)
