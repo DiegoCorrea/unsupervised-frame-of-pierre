@@ -214,7 +214,7 @@ class PierreStep6(Step):
             silhouette_results = pd.concat(silhouette_output)
             print(silhouette_results)
             SaveAndLoad.save_conformity_metric_compiled(
-                data=silhouette_results, dataset=dataset, metric=Label.JACCARD_SCORE
+                data=silhouette_results, dataset=dataset, metric=Label.SILHOUETTE_SCORE
             )
 
     # Metrics Parallelization
