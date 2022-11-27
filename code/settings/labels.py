@@ -63,7 +63,7 @@ class Label:
 
     DEFAULT_CLUSTERING = KMEANS
 
-    REGISTERED_CLUSTERS = [KMEANS, AGGLOMERATIVE, DBSCAN, OPTICS, BIRCH, FCM]
+    REGISTERED_CLUSTERS = [KMEANS, AGGLOMERATIVE, FCM, DBSCAN, OPTICS, BIRCH]
 
     ########################################################
     # Evaluation Metric labels

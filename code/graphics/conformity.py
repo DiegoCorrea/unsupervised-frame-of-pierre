@@ -17,7 +17,7 @@ class ConformityGraphics:
             groups_label.append(group[0])
             for index, row in group[1].iterrows():
                 _, algo_name, _, _, _, _, _, _ = row['COMBINATION'].split("-")
-                means_dict[algo_name].append(round(row[metric], 3))
+                means_dict[algo_name].append(round(abs(row[metric]), 3))
         print(means_dict)
 
         width = 1/(len(groups_label) + 2)  # the width of the bars
@@ -26,14 +26,27 @@ class ConformityGraphics:
         fig, ax = plt.subplots()
         i = 1
         sides = 1
-        for algo in conformity_algos:
-            if i % 2 == 0:
-                bar = ax.bar(x - (width / 2) * sides, means_dict[algo], width, label=algo)
-                sides += 1
-            else:
-                bar = ax.bar(x + (width / 2) * sides, means_dict[algo], width, label=algo)
-            ax.bar_label(bar, padding=3)
-            i += 1
+        if len(conformity_algos) % 2 == 0:
+            for algo in conformity_algos:
+                if i % 2 == 0:
+                    bar = ax.bar(x - (width * sides), means_dict[algo], width, label=algo)
+                    sides += 1
+                else:
+                    bar = ax.bar(x + (width * sides), means_dict[algo], width, label=algo)
+                ax.bar_label(bar, padding=3)
+                i += 1
+        else:
+            for algo in conformity_algos:
+                if i % 3 == 0:
+                    bar = ax.bar(x, means_dict[algo], width, label=algo)
+                elif i % 3 == 1:
+                    bar = ax.bar(x - (width * sides), means_dict[algo], width, label=algo)
+                else:
+                    bar = ax.bar(x + (width * sides), means_dict[algo], width, label=algo)
+                    sides += 1
+                ax.bar_label(bar, padding=3)
+                i += 1
+
         # Add some text for labels, title and custom x-axis tick labels, etc.
         ax.set_ylabel('Scores')
         ax.set_title(metric)
