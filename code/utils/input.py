@@ -457,3 +457,57 @@ class Input:
             print("More information are needed!")
             exit(1)
         return experimental_setup
+
+    @staticmethod
+    def step7() -> dict:
+        """
+        Function to read the settings from the terminal. The possible options are:
+
+        - opt can be: CHART, ANALYZE.
+
+        - dataset can be: ml-1m, yahoo-movies and others (see the registered datasets).
+
+        :return: A dict with the input settings.
+        """
+        experimental_setup = dict()
+        experimental_setup['opt'] = Label.EVALUATION_METRICS
+        # experimental_setup['metrics'] = Label.REGISTERED_METRICS
+
+        experimental_setup['conformity'] = Label.REGISTERED_CLUSTERS
+        experimental_setup['view'] = Label.EVALUATION_VIEWS
+
+        experimental_setup['dataset'] = RegisteredDataset.DATASET_LIST
+        if len(sys.argv) > 1:
+            for arg in sys.argv[1:]:
+                param, value = arg.split('=')
+                if param == '-opt':
+                    if value not in Label.METRIC_OPT:
+                        print(f'This option does not exists! {value}... All possibilities are:')
+                        print(Label.METRIC_OPT)
+                        exit(1)
+                    experimental_setup['opt'] = str(value)
+                elif param == '-metric':
+                    if value not in Label.REGISTERED_METRICS:
+                        print(f'Metric {value} not found! Options is:')
+                        print(Label.REGISTERED_METRICS)
+                        exit(1)
+                    experimental_setup['metrics'] = [value]
+                elif param == '-view':
+                    if value not in Label.EVALUATION_VIEWS:
+                        print(f'View {value} not found!')
+                        exit(1)
+                    experimental_setup['view'] = value
+                # read the dataset to be used
+                elif param == '--dataset':
+                    if value not in RegisteredDataset.DATASET_LIST:
+                        print('Dataset not registered!')
+                        exit(1)
+                    experimental_setup['dataset'] = [value]
+                else:
+                    print("The parameter {} is not configured in this feature.".format(param))
+        else:
+            print("More information are needed!")
+            print("All params possibilities are: -opt and --dataset.")
+            print("Example: python step7_charts_analises.py -opt=CHART --dataset=yahoo-movies")
+            exit(1)
+        return experimental_setup

@@ -84,6 +84,8 @@ class Label:
 
     REGISTERED_METRICS = [MAP, MRR, MACE, MRMC, RUN_TIME]
 
+    EVALUATION_VIEWS = [DATASET_CHART, DATASET_ANALYZE]
+
     ########################################################
     # Post-processing labels #
 
