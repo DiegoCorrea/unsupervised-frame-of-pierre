@@ -9,6 +9,30 @@ class Input:
     """
     TODO: Docstring
     """
+    @staticmethod
+    def default() -> dict:
+        experimental_setup = dict()
+        # Experimental setup information
+        experimental_setup['opt'] = Label.DATASET_SPLIT
+        experimental_setup['reload'] = "NO"
+        experimental_setup['opt'] = Label.EVALUATION_METRICS
+        experimental_setup['metrics'] = Label.REGISTERED_METRICS
+
+        experimental_setup['dataset'] = RegisteredDataset.DEFAULT_DATASET
+        experimental_setup['n_folds'] = Constants.K_FOLDS_VALUE
+        experimental_setup['n_trials'] = Constants.N_TRIAL_VALUE
+
+        experimental_setup['recommender'] = Label.DEFAULT_REC
+        experimental_setup['cluster'] = Label.DEFAULT_CLUSTERING
+
+        experimental_setup['tradeoff'] = Label.ACCESSIBLE_TRADEOFF_LIST
+        experimental_setup['fairness'] = Label.ACCESSIBLE_CALIBRATION_LIST
+        experimental_setup['relevance'] = Label.ACCESSIBLE_RELEVANCE_LIST
+        experimental_setup['weight'] = Label.ACCESSIBLE_WEIGHT_LIST
+        experimental_setup['distribution'] = Label.ACCESSIBLE_DISTRIBUTION_LIST
+        experimental_setup['selector'] = Label.ACCESSIBLE_SELECTOR_LIST
+
+        return experimental_setup
 
     @staticmethod
     def step1() -> dict:
@@ -230,6 +254,7 @@ class Input:
         :return: A dict with the input settings.
         """
         experimental_setup = dict()
+        experimental_setup['reload'] = "NO"
         experimental_setup['opt'] = Label.EVALUATION_METRICS
         experimental_setup['metrics'] = Label.REGISTERED_METRICS
 
@@ -256,6 +281,12 @@ class Input:
                         print(Label.METRIC_OPT)
                         exit(1)
                     experimental_setup['opt'] = str(value)
+                elif param == '-reload':
+                    if value not in ["YES", "NO"]:
+                        print('Reload option not found! Options is:')
+                        print(["YES", "NO"])
+                        exit(1)
+                    experimental_setup["reload"] = value
                 elif param == '-metric':
                     if value not in Label.REGISTERED_METRICS:
                         print('Metric not found! Options is:')

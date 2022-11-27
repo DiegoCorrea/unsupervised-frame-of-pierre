@@ -175,6 +175,20 @@ class PierreStep5(Step):
         """
         TODO
         """
+        print(self.experimental_settings["reload"])
+        if self.experimental_settings["reload"] == "YES":
+            print("c")
+            try:
+                metric_df = SaveAndLoad.load_conformity_metric(
+                    dataset=dataset, trial=trial, fold=fold,
+                    cluster=cluster, metric=Label.JACCARD_SCORE, recommender=recommender,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector
+                )
+                if len(metric_df[Label.JACCARD_SCORE]) > 0:
+                    return ""
+            except Exception:
+                logger.info("Reloading...")
         self.set_the_logfile_by_instance(
                 recommender=recommender, dataset=dataset, trial=trial, fold=fold,
                 distribution=distribution, fairness=fairness, relevance=relevance,
@@ -224,6 +238,7 @@ class PierreStep5(Step):
             self.experimental_settings['relevance'], self.experimental_settings['weight'],
             self.experimental_settings['tradeoff'], self.experimental_settings['selector']
         ]
+        logger.info(f"Total of combinations: {len(combination)}")
 
         load = Parallel(n_jobs=Constants.N_CORES)(
             delayed(self.starting_cluster)(

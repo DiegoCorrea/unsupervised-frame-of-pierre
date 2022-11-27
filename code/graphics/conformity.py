@@ -17,7 +17,7 @@ class ConformityGraphics:
             groups_label.append(group[0])
             for index, row in group[1].iterrows():
                 _, algo_name, _, _, _, _, _, _ = row['COMBINATION'].split("-")
-                means_dict[algo_name].append(row[metric])
+                means_dict[algo_name].append(round(row[metric], 3))
         print(means_dict)
 
         width = 1/(len(groups_label) + 2)  # the width of the bars

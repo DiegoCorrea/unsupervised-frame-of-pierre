@@ -1,7 +1,8 @@
 import logging
 
+from fcmeans import FCM
 from pandas import DataFrame
-from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN, Birch, OPTICS
 from sklearn.metrics import silhouette_score, jaccard_score
 from sklearn.neural_network import BernoulliRBM
 
@@ -38,6 +39,10 @@ class ConformityAlgorithms:
         self.weight_str = weight
         self.selector_str = selector
 
+        self.users_preferences_labels = None
+        self.users_candidate_labels = None
+        self.users_recommendation_labels = None
+
         self.users_preferences_instance = None
         self.users_candidate_instance = None
         self.users_recommendation_instance = None
@@ -55,9 +60,25 @@ class ConformityAlgorithms:
             self.users_candidate_instance = AgglomerativeClustering(n_clusters=3)
             self.users_recommendation_instance = AgglomerativeClustering(n_clusters=3)
         elif self.conformity_str == Label.BERNOULLI_RBM:
-            self.users_preferences_instance = BernoulliRBM(n_components=3)
-            self.users_candidate_instance = BernoulliRBM(n_components=3)
-            self.users_recommendation_instance = BernoulliRBM(n_components=3)
+            self.users_preferences_instance = BernoulliRBM()
+            self.users_candidate_instance = BernoulliRBM()
+            self.users_recommendation_instance = BernoulliRBM()
+        elif self.conformity_str == Label.DBSCAN:
+            self.users_preferences_instance = DBSCAN(eps=0.2, min_samples=3)
+            self.users_candidate_instance = DBSCAN(eps=0.2, min_samples=3)
+            self.users_recommendation_instance = DBSCAN(eps=0.2, min_samples=3)
+        elif self.conformity_str == Label.OPTICS:
+            self.users_preferences_instance = OPTICS()
+            self.users_candidate_instance = OPTICS()
+            self.users_recommendation_instance = OPTICS()
+        elif self.conformity_str == Label.BIRCH:
+            self.users_preferences_instance = Birch(n_clusters=3, threshold=0.1)
+            self.users_candidate_instance = Birch(n_clusters=3, threshold=0.1)
+            self.users_recommendation_instance = Birch(n_clusters=3, threshold=0.1)
+        elif self.conformity_str == Label.FCM:
+            self.users_preferences_instance = FCM(n_clusters=3)
+            self.users_candidate_instance = FCM(n_clusters=3)
+            self.users_recommendation_instance = FCM(n_clusters=3)
 
     def __load_users_preference_distribution(self):
         users_preference_set = self.dataset.get_train_transactions(trial=self.trial_int, fold=self.fold_int)
@@ -107,23 +128,88 @@ class ConformityAlgorithms:
         """
         TODO
         """
+        if self.conformity_str != Label.FCM:
+            self.users_preferences_instance = self.users_preferences_instance.fit(
+                X=self.users_pref_dist_df
+            )
+            self.users_candidate_instance = self.users_candidate_instance.fit(
+                X=self.users_cand_items_dist_df
+            )
+            self.users_recommendation_instance = self.users_recommendation_instance.fit(
+                X=self.users_rec_lists_dist_df
+            )
+        else:
+            self.users_preferences_instance.fit(
+                X=self.users_pref_dist_df.to_numpy()
+            )
+            self.users_candidate_instance.fit(
+                X=self.users_cand_items_dist_df.to_numpy()
+            )
+            self.users_recommendation_instance.fit(
+                X=self.users_rec_lists_dist_df.to_numpy()
+            )
+            print(self.users_preferences_instance)
+            print(self.users_candidate_instance)
+            print(self.users_recommendation_instance)
 
-        self.users_preferences_instance = self.users_preferences_instance.fit(X=self.users_pref_dist_df)
-        self.users_candidate_instance = self.users_candidate_instance.fit(X=self.users_cand_items_dist_df)
-        self.users_recommendation_instance = self.users_recommendation_instance.fit(X=self.users_rec_lists_dist_df)
         if self.conformity_str == Label.KMEANS:
-            self.users_preferences_instance = self.users_preferences_instance.predict(X=self.users_pref_dist_df)
-            self.users_candidate_instance = self.users_candidate_instance.predict(X=self.users_cand_items_dist_df)
-            self.users_recommendation_instance = self.users_recommendation_instance.predict(X=self.users_rec_lists_dist_df)
-        elif self.conformity_str == Label.AGGLOMERATIVE:
-            self.users_preferences_instance = self.users_preferences_instance.fit_predict(X=self.users_pref_dist_df)
-            self.users_candidate_instance = self.users_candidate_instance.fit_predict(X=self.users_cand_items_dist_df)
-            self.users_recommendation_instance = self.users_recommendation_instance.fit_predict(X=self.users_rec_lists_dist_df)
+            self.users_preferences_labels = self.users_preferences_instance.predict(
+                X=self.users_pref_dist_df
+            )
+            self.users_candidate_labels = self.users_candidate_instance.predict(
+                X=self.users_cand_items_dist_df
+            )
+            self.users_recommendation_labels = self.users_recommendation_instance.predict(
+                X=self.users_rec_lists_dist_df
+            )
+        elif self.conformity_str == Label.AGGLOMERATIVE or \
+                self.conformity_str == Label.BIRCH or self.conformity_str == Label.OPTICS:
+            self.users_preferences_labels = self.users_preferences_instance.fit_predict(
+                X=self.users_pref_dist_df
+            )
+            self.users_candidate_labels = self.users_candidate_instance.fit_predict(
+                X=self.users_cand_items_dist_df
+            )
+            self.users_recommendation_labels = self.users_recommendation_instance.fit_predict(
+                X=self.users_rec_lists_dist_df
+            )
+        elif self.conformity_str == Label.BERNOULLI_RBM:
+            self.users_preferences_labels = self.users_preferences_instance.fit(
+                X=self.users_pref_dist_df
+            )
+            self.users_candidate_labels = self.users_candidate_instance.fit(
+                X=self.users_cand_items_dist_df
+            )
+            self.users_recommendation_labels = self.users_recommendation_instance.fit(
+                X=self.users_rec_lists_dist_df
+            )
+        elif self.conformity_str == Label.DBSCAN:
+            self.users_preferences_labels = self.users_preferences_instance.fit_predict(
+                X=self.users_pref_dist_df
+            )
+            self.users_candidate_labels = self.users_candidate_instance.fit_predict(
+                X=self.users_cand_items_dist_df
+            )
+            self.users_recommendation_labels = self.users_recommendation_instance.fit_predict(
+                X=self.users_rec_lists_dist_df
+            )
+        elif self.conformity_str == Label.FCM:
+            self.users_preferences_labels = self.users_preferences_instance.predict(
+                X=self.users_pref_dist_df.to_numpy()
+            )
+            self.users_candidate_labels = self.users_candidate_instance.predict(
+                X=self.users_cand_items_dist_df.to_numpy()
+            )
+            self.users_recommendation_labels = self.users_recommendation_instance.predict(
+                X=self.users_rec_lists_dist_df.to_numpy()
+            )
 
     def __silhouette_avg(self):
-        user_pref_silhouette_avg = silhouette_score(self.users_pref_dist_df, self.users_preferences_instance)
-        users_cand_items_silhouette_avg = silhouette_score(self.users_cand_items_dist_df, self.users_candidate_instance)
-        users_rec_lists_silhouette_avg = silhouette_score(self.users_rec_lists_dist_df, self.users_recommendation_instance)
+        print(self.users_preferences_labels)
+        print(set(self.users_preferences_labels))
+        user_pref_silhouette_avg = silhouette_score(self.users_pref_dist_df, self.users_preferences_labels)
+        users_cand_items_silhouette_avg = silhouette_score(self.users_cand_items_dist_df, self.users_candidate_labels)
+        users_rec_lists_silhouette_avg = silhouette_score(self.users_rec_lists_dist_df, self.users_recommendation_labels)
 
         data = DataFrame(
             [[user_pref_silhouette_avg], [users_cand_items_silhouette_avg], [users_rec_lists_silhouette_avg]],
@@ -141,10 +227,10 @@ class ConformityAlgorithms:
 
     def __group_jaccard_score(self):
         users_cand_item_score_float = jaccard_score(
-            self.users_preferences_instance, self.users_candidate_instance, average='macro'
+            self.users_preferences_labels, self.users_candidate_labels, average='macro'
         )
         user_rec_lists_score_float = jaccard_score(
-            self.users_preferences_instance, self.users_recommendation_instance, average='macro'
+            self.users_preferences_labels, self.users_recommendation_labels, average='macro'
         )
 
         data = DataFrame(

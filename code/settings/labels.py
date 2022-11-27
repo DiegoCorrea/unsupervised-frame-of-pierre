@@ -56,10 +56,14 @@ class Label:
     KMEANS = 'KMEANS'
     AGGLOMERATIVE = 'AGGLOMERATIVE'
     BERNOULLI_RBM = 'BERNOULLI_RBM'
+    DBSCAN = "DBSCAN"
+    OPTICS = "OPTICS"
+    BIRCH = "BIRCH"
+    FCM = "FCM"
 
     DEFAULT_CLUSTERING = KMEANS
 
-    REGISTERED_CLUSTERS = [KMEANS, AGGLOMERATIVE, BERNOULLI_RBM]
+    REGISTERED_CLUSTERS = [KMEANS, AGGLOMERATIVE, DBSCAN, OPTICS, BIRCH, FCM]
 
     ########################################################
     # Evaluation Metric labels
