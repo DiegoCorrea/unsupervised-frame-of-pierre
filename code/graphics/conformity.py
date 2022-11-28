@@ -20,7 +20,7 @@ class ConformityGraphics:
                 means_dict[algo_name].append(round(abs(row[metric]), 3))
         print(means_dict)
 
-        width = 1/(len(groups_label) + 2)  # the width of the bars
+        width = 1/(len(groups_label) + 3)  # the width of the bars
         x = np.arange(len(groups_label))
 
         fig, ax = plt.subplots()
