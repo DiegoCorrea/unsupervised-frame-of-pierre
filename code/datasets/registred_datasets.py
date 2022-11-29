@@ -15,7 +15,7 @@ class RegisteredDataset:
     DATASET_LIST = [MOVIELENS_ONE_MILLION_DATASET, YAHOO_MOVIES_DATASET]
 
     # Default dataset
-    DEFAULT_DATASET = MOVIELENS_ONE_MILLION_DATASET
+    DEFAULT_DATASET = YAHOO_MOVIES_DATASET
 
     @staticmethod
     def load_dataset(dataset: str) -> Dataset:

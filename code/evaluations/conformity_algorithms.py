@@ -3,6 +3,7 @@ import logging
 from fcmeans import FCM
 from pandas import DataFrame
 from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN, Birch, OPTICS
+from sklearn.ensemble import IsolationForest
 from sklearn.metrics import silhouette_score, jaccard_score
 from sklearn.neural_network import BernoulliRBM
 
@@ -79,16 +80,17 @@ class ConformityAlgorithms:
             self.users_preferences_instance = FCM(n_clusters=3)
             self.users_candidate_instance = FCM(n_clusters=3)
             self.users_recommendation_instance = FCM(n_clusters=3)
+        elif self.conformity_str == Label.IF:
+            self.users_preferences_instance = IsolationForest()
+            self.users_candidate_instance = IsolationForest()
+            self.users_recommendation_instance = IsolationForest()
 
     def __load_users_preference_distribution(self):
-        users_preference_set = self.dataset.get_train_transactions(trial=self.trial_int, fold=self.fold_int)
         self.distribution_instance = calibration_measures_funcs(measure=self.distribution_str)
-        self.users_pref_dist_df = pd.concat([
-            self.dist_func(
-                user_pref_set=users_preference_set[users_preference_set['USER_ID'] == user_id],
-                item_classes_set=self.items_classes_set
-            ) for user_id in users_preference_set['USER_ID'].unique().tolist()
-        ])
+        self.users_pref_dist_df = SaveAndLoad.load_user_preference_distribution(
+            dataset=self.dataset.system_name, trial=self.trial_int, fold=self.fold_int,
+            distribution=self.distribution_str
+        )
 
     def __load_users_candidate_items_distribution(self):
         self.users_candidate_items = SaveAndLoad.load_candidate_items(
@@ -148,9 +150,6 @@ class ConformityAlgorithms:
             self.users_recommendation_instance.fit(
                 X=self.users_rec_lists_dist_df.to_numpy()
             )
-            print(self.users_preferences_instance)
-            print(self.users_candidate_instance)
-            print(self.users_recommendation_instance)
 
         if self.conformity_str == Label.KMEANS:
             self.users_preferences_labels = self.users_preferences_instance.predict(
@@ -162,7 +161,7 @@ class ConformityAlgorithms:
             self.users_recommendation_labels = self.users_recommendation_instance.predict(
                 X=self.users_rec_lists_dist_df
             )
-        elif self.conformity_str == Label.AGGLOMERATIVE or \
+        elif self.conformity_str == Label.AGGLOMERATIVE or self.conformity_str == Label.IF or \
                 self.conformity_str == Label.BIRCH or self.conformity_str == Label.OPTICS:
             self.users_preferences_labels = self.users_preferences_instance.fit_predict(
                 X=self.users_pref_dist_df

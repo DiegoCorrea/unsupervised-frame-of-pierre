@@ -18,8 +18,9 @@ class Label:
     DATASET_SPLIT = 'SPLIT'
     DATASET_CHART = 'CHARTS'
     DATASET_ANALYZE = 'ANALYZE'
+    DATASET_DISTRIBUTION = 'DISTRIBUTION'
 
-    PREPROCESSING_OPTS = [DATASET_SPLIT, DATASET_CHART, DATASET_ANALYZE]
+    PREPROCESSING_OPTS = [DATASET_SPLIT, DATASET_CHART, DATASET_ANALYZE, DATASET_DISTRIBUTION]
 
     ########################################################
     # Recommenders labels
@@ -53,17 +54,18 @@ class Label:
 
     ########################################################
     # Clustering labels
-    KMEANS = 'KMEANS'
     AGGLOMERATIVE = 'AGGLOMERATIVE'
     BERNOULLI_RBM = 'BERNOULLI_RBM'
+    KMEANS = 'KMEANS'
     DBSCAN = "DBSCAN"
     OPTICS = "OPTICS"
     BIRCH = "BIRCH"
     FCM = "FCM"
+    IF = "IF"
 
     DEFAULT_CLUSTERING = KMEANS
 
-    REGISTERED_CLUSTERS = [KMEANS, AGGLOMERATIVE, FCM, BIRCH, OPTICS]
+    REGISTERED_CLUSTERS = [KMEANS, AGGLOMERATIVE, FCM, BIRCH, OPTICS, IF]
 
     ########################################################
     # Evaluation Metric labels

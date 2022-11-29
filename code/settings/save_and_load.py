@@ -56,6 +56,30 @@ class SaveAndLoad:
 
         return params
 
+    @staticmethod
+    def save_user_preference_distribution(
+            data: DataFrame, dataset: str, trial: int, fold: int, distribution: str, ext: str = 'csv'
+    ):
+        """
+        TODO: Docstring
+        """
+        data.to_csv(
+            PathDirFile.set_preference_distribution_file(
+                dataset=dataset, fold=fold, trial=trial, filename=distribution + '.' + ext
+            ),
+            index=False
+        )
+
+    @staticmethod
+    def load_user_preference_distribution(dataset: str, trial: int, fold: int, distribution: str, ext: str = 'csv'):
+        """
+        TODO: Docstring
+        """
+        preference_distribution_path = PathDirFile.get_preference_distribution_file(
+            dataset=dataset, fold=fold, trial=trial, filename=distribution + '.' + ext
+        )
+        return read_csv(preference_distribution_path)
+
     # ########################################################################################### #
     # [STEP 2] Search step methods - Time
     # ########################################################################################### #

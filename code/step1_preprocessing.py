@@ -1,11 +1,18 @@
 import datetime
+import itertools
 import logging
 import time
 
 import pandas as pd
+from joblib import Parallel, delayed
 
 from datasets.registred_datasets import RegisteredDataset
+from scikit_pierre.classes.genre import genre_probability_approach
+from scikit_pierre.distributions.accessible import distributions_funcs_pandas
+from scikit_pierre.measures.accessible import calibration_measures_funcs
+from settings.constants import Constants
 from settings.labels import Label
+from settings.save_and_load import SaveAndLoad
 from utils.logging_settings import setup_logging
 from settings.path_dir_file import PathDirFile
 from utils.input import Input
@@ -88,6 +95,43 @@ class PierreStep1(Step):
         """
         pass
 
+    def create_distribution(self):
+        combination = [
+            [self.experimental_settings['dataset']], self.experimental_settings['trial'],
+            self.experimental_settings['fold'], [self.experimental_settings['distribution']]
+        ]
+
+        load = Parallel(n_jobs=Constants.N_CORES)(
+            delayed(self.compute_distribution)(
+                dataset=dataset, trial=trial, fold=fold, distribution=distribution
+            ) for dataset, trial, fold, distribution
+            in list(itertools.product(*combination)))
+
+    @staticmethod
+    def compute_distribution(dataset, trial, fold, distribution):
+        """
+        TODO: Docstring
+        """
+        dataset_instance = RegisteredDataset.load_dataset(dataset)
+        dist_func = distributions_funcs_pandas(distribution=distribution)
+        items_classes_set = genre_probability_approach(item_set=dataset_instance.get_items())
+        users_preference_set = dataset_instance.get_train_transactions(
+            trial=trial, fold=fold
+        )
+        users_pref_dist_df = pd.concat([
+            dist_func(
+                user_pref_set=users_preference_set[users_preference_set['USER_ID'] == user_id],
+                item_classes_set=items_classes_set
+            ) for user_id in users_preference_set['USER_ID'].unique().tolist()
+        ])
+        SaveAndLoad.save_user_preference_distribution(
+            data=users_pref_dist_df, dataset=dataset, fold=fold, trial=trial, distribution=distribution
+        )
+
+        logger.info(" ... ".join([
+            '->> ', 'Compute Distribution Finished to: ', dataset, distribution, str(trial), str(fold)
+        ]))
+
     def main(self):
         """
         TODO: Docstring
@@ -96,6 +140,8 @@ class PierreStep1(Step):
             self.create_charts()
         elif self.experimental_settings['opt'] == Label.DATASET_ANALYZE:
             self.create_analyzes()
+        elif self.experimental_settings['opt'] == Label.DATASET_DISTRIBUTION:
+            self.create_distribution()
         else:
             self.create_folds()
 

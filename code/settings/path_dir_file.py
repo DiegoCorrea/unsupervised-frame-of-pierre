@@ -67,7 +67,7 @@ class PathDirFile:
 
         :return: A loaded DataFrame instance.
         """
-        save_in_dir = "/".join([PathDirFile.DATA_DIR, 'app', dataset, 'time', 'split'])
+        save_in_dir = "/".join([PathDirFile.EXPERIMENT_DIR, dataset, 'time', 'split'])
         return read_csv("/".join([save_in_dir, PathDirFile.TIME_FILE]))
 
     @staticmethod
@@ -83,6 +83,40 @@ class PathDirFile:
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
         return save_in_dir + '/'
+
+    @staticmethod
+    def set_preference_distribution_file(dataset: str, trial: int, fold: int, filename: str) -> str:
+        """
+        TODO.
+
+        :param dataset: A string that's representing the dataset name.
+        :param filename: TODO
+        :param trial: The trial number.
+        :param fold: The fold number.
+
+        :return: A string like
+        TODO
+        """
+        save_in_dir = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dataset, 'trial-' + str(trial), 'fold-' + str(fold)])
+        if not os.path.exists(save_in_dir):
+            os.makedirs(save_in_dir)
+        return "/".join([save_in_dir, filename])
+
+    @staticmethod
+    def get_preference_distribution_file(dataset: str, trial: int, fold: int, filename: str) -> str:
+        """
+        TODO
+
+        :param dataset: A string that's representing the dataset name.
+        :param filename: TODO
+        :param trial: The trial number.
+        :param fold: The fold number.
+
+        :return: A string like
+        TODO
+        """
+        save_in_dir = "/".join([PathDirFile.CLEAN_DATASETS_DIR, dataset, 'trial-' + str(trial), 'fold-' + str(fold)])
+        return "/".join([save_in_dir, filename])
 
     # ########################################################################################### #
     # [STEP 2] Search step methods - Hyperparameters

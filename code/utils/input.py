@@ -53,8 +53,11 @@ class Input:
         # Experimental setup information
         experimental_setup['opt'] = Label.DATASET_SPLIT
         experimental_setup['dataset'] = RegisteredDataset.DEFAULT_DATASET
+        experimental_setup['distribution'] = Label.DEFAULT_DISTRIBUTION
         experimental_setup['n_folds'] = Constants.K_FOLDS_VALUE
         experimental_setup['n_trials'] = Constants.N_TRIAL_VALUE
+        experimental_setup['fold'] = list(range(1, Constants.K_FOLDS_VALUE + 1))
+        experimental_setup['trial'] = list(range(1, Constants.N_TRIAL_VALUE + 1))
         if len(sys.argv) > 1:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
@@ -70,15 +73,33 @@ class Input:
                         print('The lower accepted value is 3!')
                         exit(1)
                     experimental_setup['n_folds'] = int(value)
+                elif param == '--distribution':
+                    if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
+                        print('Distribution not found!')
+                        exit(1)
+                    experimental_setup['distribution'] = value
                 # read number of trials
                 elif param == '--n_trials':
                     if int(value) < 1:
                         print('Only positive numbers are accepted!')
                         exit(1)
                     experimental_setup['n_trials'] = int(value)
+                # read the fold number
+                elif param == '--fold':
+                    if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
+                        print('Fold out of range!')
+                        exit(1)
+                    experimental_setup['fold'] = value
+                # read the trial number
+                elif param == '--trial':
+                    if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
+                        print('Fold out of range!')
+                        exit(1)
+                    experimental_setup['trial'] = value
                 elif param == '-opt':
-                    if param not in Label.PREPROCESSING_OPTS:
-                        print('This option does not exists!')
+                    if value not in Label.PREPROCESSING_OPTS:
+                        print(f'Option {value} does not exists!')
+                        print("The possibilities are: ", Label.PREPROCESSING_OPTS)
                         exit(1)
                     experimental_setup['opt'] = str(value)
 
