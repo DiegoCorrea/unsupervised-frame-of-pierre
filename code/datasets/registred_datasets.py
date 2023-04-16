@@ -1,4 +1,5 @@
 from datasets.movielens_one_million import MovielensOneMillion
+from datasets.taste_profile import TasteProfile
 from datasets.utils.base import Dataset
 from datasets.yahoo_movies import YahooMovies
 
@@ -10,9 +11,10 @@ class RegisteredDataset:
     # Registered datasets
     MOVIELENS_ONE_MILLION_DATASET = MovielensOneMillion.system_name
     YAHOO_MOVIES_DATASET = YahooMovies.system_name
+    TASTE_PROFILE_DATASET = TasteProfile.system_name
 
     # Allowed to be accessed
-    DATASET_LIST = [MOVIELENS_ONE_MILLION_DATASET, YAHOO_MOVIES_DATASET]
+    DATASET_LIST = [MOVIELENS_ONE_MILLION_DATASET, YAHOO_MOVIES_DATASET, TASTE_PROFILE_DATASET]
 
     # Default dataset
     DEFAULT_DATASET = YAHOO_MOVIES_DATASET
@@ -30,6 +32,9 @@ class RegisteredDataset:
         # Yahoo Movies
         elif dataset == RegisteredDataset.YAHOO_MOVIES_DATASET:
             return YahooMovies()
+        # Taste Profile
+        elif dataset == RegisteredDataset.TASTE_PROFILE_DATASET:
+            return TasteProfile()
         else:
             raise "The requested dataset is not registered in the system"
 
@@ -48,6 +53,10 @@ class RegisteredDataset:
         # Yahoo Movies
         elif dataset == RegisteredDataset.YAHOO_MOVIES_DATASET:
             instance = YahooMovies()
+            instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
+        # Taste Profile
+        elif dataset == RegisteredDataset.TASTE_PROFILE_DATASET:
+            instance = TasteProfile()
             instance.mining_data_and_create_fold(n_trials=n_trials, n_folds=n_folds)
         else:
             raise "The requested dataset is not registered in the system"

@@ -37,13 +37,14 @@ def split_with_joblib(transactions_df: pd.DataFrame, trial: int = Constants.N_TR
     Each position has a list with n_folds positions.
     """
     # Preparing: users, results dataframe and shared queue over processes
-    users_ids = transactions_df[Label.USER_ID].unique().tolist()
+    # users_ids = transactions_df[Label.USER_ID].unique().tolist()
+    grouped_transactions = transactions_df.groupby(by=[Label.USER_ID])
 
     delayed_list = (
-        delayed(user_split_in_kfolds)(transactions_df.loc[transactions_df[Label.USER_ID] == user_id], trial, n_folds)
-        for user_id in users_ids
+        delayed(user_split_in_kfolds)(transactions, trial, n_folds)
+        for user_id, transactions in grouped_transactions
     )
-    out = Parallel(n_jobs=n_jobs)(delayed_list)
+    out = Parallel(n_jobs=n_jobs, verbose=10, batch_size=64)(delayed_list)
     # Concat and resume the results
     train_results_df = [pd.DataFrame() for _ in range(n_folds)]
     test_results_df = [pd.DataFrame() for _ in range(n_folds)]

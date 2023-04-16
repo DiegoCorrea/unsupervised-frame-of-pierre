@@ -15,11 +15,6 @@ class Constants:
     N_CORES = multiprocessing.cpu_count()
     os.environ['NUMEXPR_MAX_THREADS'] = str(N_CORES)
 
-    # Experimental #
-    K_FOLDS_VALUE = 5
-    N_TRIAL_VALUE = 7
-    PROFILE_LEN_CUT_VALUE = K_FOLDS_VALUE
-
     # SEARCH
     N_INTER = 127
 
@@ -32,3 +27,8 @@ class Constants:
 
     # Minkowski Distance param
     DIMENSION_VALUE = 3
+
+    # Experimental #
+    K_FOLDS_VALUE = 5
+    N_TRIAL_VALUE = 1
+    PROFILE_LEN_CUT_VALUE = K_FOLDS_VALUE * RECOMMENDATION_LIST_SIZE

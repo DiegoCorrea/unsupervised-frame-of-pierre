@@ -17,12 +17,13 @@ class ConformityGraphics:
             groups_label.append(group[0])
             for index, row in group[1].iterrows():
                 _, algo_name, _, _, _, _, _, _ = row['COMBINATION'].split("-")
-                means_dict[algo_name].append(round(abs(row[metric]), 3))
+                means_dict[algo_name].append(round(abs(row[metric]) * 100, 0))
         print(means_dict)
 
-        width = 1/(len(groups_label) + 3)  # the width of the bars
+        width = 1/(len(means_dict) + 2)  # the width of the bars
         x = np.arange(len(groups_label))
 
+        # plt.figure(figsize=(8, 6))
         fig, ax = plt.subplots()
         i = 1
         sides = 1
@@ -52,8 +53,8 @@ class ConformityGraphics:
         ax.set_title(metric)
         ax.set_xticks(x, groups_label)
         ax.legend()
-        plt.xticks(rotation=30)
-
+        plt.xticks(rotation=15)
+        lgd = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.35), fancybox=True, shadow=True, ncol=3)
         fig.tight_layout()
         # Pasta para salvar a figura
         file_dir = PathDirFile.set_graphics_file(dataset_name, metric + '.png')

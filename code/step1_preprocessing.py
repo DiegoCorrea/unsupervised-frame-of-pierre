@@ -93,7 +93,11 @@ class PierreStep1(Step):
         """
         TODO: Docstring
         """
-        pass
+        dataset_instance = RegisteredDataset.load_dataset(
+            dataset=self.experimental_settings['dataset']
+        )
+        dataset_instance.raw_data_basic_info()
+        dataset_instance.clean_data_basic_info()
 
     def create_distribution(self):
         combination = [

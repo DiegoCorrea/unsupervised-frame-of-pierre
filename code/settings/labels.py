@@ -5,6 +5,8 @@ class Label:
     TRANSACTION_VALUE = 'TRANSACTION_VALUE'
     PREDICTED_VALUE = 'PREDICTED_VALUE'
     GENRES = 'GENRES'
+    MAJORITY_GENRE = 'MAJORITY_GENRE'
+    MINORITY_GENRE = 'MINORITY_GENRE'
     TITLE = 'TITLE'
     TIME = 'TIMESTAMP'
     ORDER = 'ORDER'
@@ -12,6 +14,10 @@ class Label:
     USERS_PREF = 'USER_PREF'
     USERS_CAND_ITEMS = 'USERS_CAND_ITEMS'
     USERS_REC_LISTS = 'USERS_REC_LISTS'
+    TRACK_ID = 'TRACK_ID'
+    ARTIST = 'ARTIST'
+    ALBUM = 'ALBUM'
+    YEAR = 'YEAR'
 
     ########################################################
     # Preprocessing labels

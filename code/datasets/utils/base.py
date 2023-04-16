@@ -312,7 +312,10 @@ class Dataset:
         total_of_users = len(self.raw_transactions[Label.USER_ID].unique())
         total_of_items = len(self.raw_items)
         total_of_transactions = len(self.raw_transactions)
-        total_of_classes = len(set(list(itertools.chain.from_iterable(list(map(classes, self.raw_items[Label.GENRES].tolist()))))))
+        if self.system_name == 'taste-profile':
+            total_of_classes = 0
+        else:
+            total_of_classes = len(set(list(itertools.chain.from_iterable(list(map(classes, self.raw_items[Label.GENRES].tolist()))))))
         print("RAW DATASET INFORMATION")
         print("Total of Users: ", total_of_users)
         print("Total of Items: ", total_of_items)
