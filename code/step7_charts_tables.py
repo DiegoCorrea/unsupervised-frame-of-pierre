@@ -89,14 +89,14 @@ class PierreStep7(Step):
                 dataset=dataset_name, metric=Label.JACCARD_SCORE
             )
             ConformityGraphics.silhouette_group_bar(
-                jaccard_results, dataset_name, Label.REGISTERED_CLUSTERS, Label.JACCARD_SCORE
+                jaccard_results, dataset_name, Label.REGISETRED_UNSUPERVISED, Label.JACCARD_SCORE
             )
 
             silhlouete_results = SaveAndLoad.load_conformity_metric_compiled(
                 dataset=dataset_name, metric=Label.SILHOUETTE_SCORE
             )
             ConformityGraphics.silhouette_group_bar(
-                silhlouete_results, dataset_name, Label.REGISTERED_CLUSTERS, Label.SILHOUETTE_SCORE
+                silhlouete_results, dataset_name, Label.REGISETRED_UNSUPERVISED, Label.SILHOUETTE_SCORE
             )
 
     def conformity_analyses(self):

@@ -62,26 +62,25 @@ class PierreStep1(Step):
         TODO: Docstring
         """
         # Starting the counter
-        start_time = time.time()
-        logger.info('ooo start at ' + time.strftime('%H:%M:%S'))
+        self.start_count()
         # Executing the pre-processing
         RegisteredDataset.preprocessing(
             dataset=self.experimental_settings['dataset'],
             n_trials=self.experimental_settings['n_trials'],
             n_folds=self.experimental_settings['n_folds']
         )
+
         # Finishing the counter
-        finish_time = time.time()
-        logger.info('XXX stop at ' + time.strftime('%H:%M:%S'))
-        # Getting execution time
-        execution_time = datetime.timedelta(seconds=finish_time - start_time)
-        time_df = pd.DataFrame({"stated_at": [start_time], "finished_at": [finish_time], "total": [execution_time]})
+        self.finish_count()
+
         # Saving execution time
-        PathDirFile.save_split_time_file(
-            data_df=time_df, dataset=self.experimental_settings['dataset']
+        SaveAndLoad.save_preprocessing_time(
+            data=self.clock_data(),
+            dataset=self.experimental_settings['dataset']
         )
+
         # Finishing the step
-        logger.info(" ".join(['->>', 'Time Execution:', str(execution_time)]))
+        logger.info(" ".join(['->>', 'Time Execution:', str(self.get_total_time())]))
 
     def create_charts(self):
         """
@@ -122,11 +121,13 @@ class PierreStep1(Step):
         users_preference_set = dataset_instance.get_train_transactions(
             trial=trial, fold=fold
         )
+
+        grouped_users_preference_set = users_preference_set.groupby(by=[Label.USER_ID])
         users_pref_dist_df = pd.concat([
             dist_func(
-                user_pref_set=users_preference_set[users_preference_set['USER_ID'] == user_id],
+                user_pref_set=user_pref_set,
                 item_classes_set=items_classes_set
-            ) for user_id in users_preference_set['USER_ID'].unique().tolist()
+            ) for user_id, user_pref_set in grouped_users_preference_set
         ])
         SaveAndLoad.save_user_preference_distribution(
             data=users_pref_dist_df, dataset=dataset, fold=fold, trial=trial, distribution=distribution

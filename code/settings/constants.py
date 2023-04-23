@@ -16,7 +16,7 @@ class Constants:
     os.environ['NUMEXPR_MAX_THREADS'] = str(N_CORES)
 
     # SEARCH
-    N_INTER = 127
+    N_INTER = 7
 
     # Algorithm hyper param #
     ALPHA_VALUE = 0.01

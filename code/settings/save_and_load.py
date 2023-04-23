@@ -12,6 +12,18 @@ class SaveAndLoad:
     """
 
     # ########################################################################################### #
+    # [STEP 1] Pre Processing step methods - Time
+    # ########################################################################################### #
+    @staticmethod
+    def save_preprocessing_time(data: DataFrame, dataset: str):
+        """
+        TODO: Docstring
+        """
+        data.to_csv(
+            PathDirFile.save_split_time_file(dataset=dataset), index=False
+        )
+
+    # ########################################################################################### #
     # [STEP 2] Search step methods - Best Parameters
     # ########################################################################################### #
     @staticmethod
@@ -42,7 +54,7 @@ class SaveAndLoad:
         """
         with open(PathDirFile.set_conformity_hyperparameter_file(
                 opt=Label.CONFORMITY, dataset=dataset, algorithm=algorithm, distribution=distribution), 'w') as fp:
-            json.dump(best_params['mae'], fp)
+            json.dump(best_params, fp)
 
     @staticmethod
     def load_hyperparameters_conformity(dataset: str, algorithm: str, distribution: str):
@@ -90,6 +102,16 @@ class SaveAndLoad:
         """
         data.to_csv(
             PathDirFile.set_search_time_file(dataset=dataset, algorithm=algorithm),
+            index=False
+        )
+
+    @staticmethod
+    def save_search_conformity_time(data: DataFrame, dataset: str, algorithm: str, distribution: str):
+        """
+        TODO: Docstring
+        """
+        data.to_csv(
+            PathDirFile.set_search_conformity_time_file(dataset=dataset, algorithm=algorithm, distribution=distribution),
             index=False
         )
 

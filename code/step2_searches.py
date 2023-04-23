@@ -1,11 +1,12 @@
 import logging
 
+from searches.conformity_search import ManualConformityAlgorithmSearch
 from searches.recommender_search import RecommenderSearch
 from settings.labels import Label
-from utils.logging_settings import setup_logging
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
 from utils.input import Input
+from utils.logging_settings import setup_logging
 from utils.step import Step
 
 logger = logging.getLogger(__name__)
@@ -68,18 +69,18 @@ class PierreStep2(Step):
         self.start_count()
 
         # # Executing the Random Search
-        # search_instance = ConformityAlgorithmSearch(
-        #     cluster=self.experimental_settings['cluster'],
-        #     distribution=self.experimental_settings['distribution'],
-        #     dataset=self.experimental_settings['dataset']
-        # )
-        # search_instance.fit()
+        search_instance = ManualConformityAlgorithmSearch(
+            experimental_settings=self.experimental_settings
+        )
+        for algorithm in self.experimental_settings['cluster']:
+            print(f"Starting Algorithm: {algorithm}")
+            search_instance.run(conformity_str=algorithm)
         #
-        # # Finishing the counter
-        # self.finish_count()
+        # Finishing the counter
+        self.finish_count()
         #
-        # # Saving execution time
-        # SaveAndLoad.save_search_time(
+        # Saving execution time
+        # SaveAndLoad.save_search_conformity_time(
         #     data=self.clock_data(),
         #     dataset=self.experimental_settings['dataset'],
         #     algorithm=self.experimental_settings['cluster'],

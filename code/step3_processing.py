@@ -76,7 +76,7 @@ class PierreStep3(Step):
             recommender=self.experimental_settings['recommender'],
             dataset=self.experimental_settings['dataset'],
             trial=trial, fold=fold
-        ) for fold in range(1, Constants.K_FOLDS_VALUE + 1) for trial in range(1, Constants.N_TRIAL_VALUE + 1))
+        ) for fold in self.experimental_settings['fold'] for trial in self.experimental_settings['trial'])
         # Finishing the Step
         logger.info(" ".join(['+' * 10, 'System shutdown', '+' * 10]))
 
@@ -113,6 +113,8 @@ class PierreStep3(Step):
             data=self.clock_data(),
             dataset=dataset, trial=trial, fold=fold, algorithm=recommender
         )
+        # Finishing the step
+        logger.info(" ".join(['->>', 'Time Execution:', str(self.get_total_time())]))
 
 
 if __name__ == '__main__':

@@ -86,7 +86,7 @@ class TasteProfile(Dataset):
             dtype=str, sep=',', header=None,
             names=[Label.ITEM_ID, Label.TITLE, Label.ALBUM, Label.ARTIST, Label.YEAR]
         )
-        self.raw_items.drop([Label.TITLE, Label.ALBUM, Label.ARTIST, Label.YEAR], axis=1, inplace=True)
+        self.raw_items.drop([Label.ALBUM, Label.ARTIST, Label.YEAR], axis=1, inplace=True)
 
         self.raw_track_items = pd.read_csv(
             os.path.join(self.dataset_raw_path, self.raw_tracks_file), engine='python',

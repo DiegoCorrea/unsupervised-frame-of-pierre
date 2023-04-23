@@ -133,8 +133,9 @@ class Input:
         experimental_setup['opt'] = Label.RECOMMENDER
         experimental_setup['dataset'] = RegisteredDataset.DEFAULT_DATASET
         experimental_setup['recommender'] = Label.DEFAULT_REC
-        experimental_setup['cluster'] = Label.DEFAULT_CLUSTERING
         experimental_setup['distribution'] = Label.DEFAULT_DISTRIBUTION
+        experimental_setup['cluster'] = Label.REGISETRED_UNSUPERVISED
+
         if len(sys.argv) > 1:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
@@ -150,10 +151,10 @@ class Input:
                         exit(1)
                     experimental_setup['dataset'] = value
                 elif param == '--cluster':
-                    if value not in Label.REGISTERED_CLUSTERS:
+                    if value not in Label.REGISETRED_UNSUPERVISED:
                         print('Cluster algorithm not registered!')
                         exit(1)
-                    experimental_setup['cluster'] = value
+                    experimental_setup['cluster'] = [value]
                 elif param == '--distribution':
                     if value not in Label.ACCESSIBLE_DISTRIBUTION_LIST:
                         print('Distribution not found!')
@@ -198,8 +199,8 @@ class Input:
         experimental_setup['opt'] = Label.RECOMMENDER
         experimental_setup['recommender'] = Label.DEFAULT_REC
         experimental_setup['dataset'] = RegisteredDataset.DEFAULT_DATASET
-        experimental_setup['fold'] = 1
-        experimental_setup['trial'] = 1
+        experimental_setup['fold'] = [fold for fold in range(1, Constants.K_FOLDS_VALUE + 1)]
+        experimental_setup['trial'] = [trial for trial in range(1, Constants.N_TRIAL_VALUE + 1)]
 
         if len(sys.argv) > 2:
             for arg in sys.argv[1:]:
@@ -222,13 +223,13 @@ class Input:
                     if int(value) <= 0 or int(value) > Constants.K_FOLDS_VALUE:
                         print('Fold out of range!')
                         exit(1)
-                    experimental_setup['fold'] = value
+                    experimental_setup['fold'] = [value]
                 # read the trial number
                 elif param == '--trial':
                     if int(value) <= 0 or int(value) > Constants.N_TRIAL_VALUE:
                         print('Fold out of range!')
                         exit(1)
-                    experimental_setup['trial'] = value
+                    experimental_setup['trial'] = [value]
                 elif param == '-opt':
                     if value not in Label.SEARCH_OPTS:
                         print(f'This option does not exists! {value}')
@@ -280,7 +281,7 @@ class Input:
         experimental_setup['metrics'] = Label.REGISTERED_METRICS
 
         experimental_setup['recommender'] = Label.REGISTERED_RECOMMENDERS
-        experimental_setup['cluster'] = Label.REGISTERED_CLUSTERS
+        experimental_setup['cluster'] = Label.REGISETRED_UNSUPERVISED
 
         experimental_setup['dataset'] = [RegisteredDataset.DEFAULT_DATASET]
         experimental_setup['fold'] = list(range(1, Constants.K_FOLDS_VALUE + 1))
@@ -315,9 +316,9 @@ class Input:
                         exit(1)
                     experimental_setup['metrics'] = [value]
                 elif param == '-cluster':
-                    if value not in Label.REGISTERED_CLUSTERS:
+                    if value not in Label.REGISETRED_UNSUPERVISED:
                         print('Cluster algorithm not registered! All possibilities are:')
-                        print(Label.REGISTERED_CLUSTERS)
+                        print(Label.REGISETRED_UNSUPERVISED)
                         exit(1)
                     experimental_setup['cluster'] = [value]
                 elif param == '--recommender':
@@ -422,7 +423,7 @@ class Input:
         experimental_setup['metrics'] = Label.REGISTERED_METRICS
 
         experimental_setup['recommender'] = Label.REGISTERED_RECOMMENDERS
-        experimental_setup['conformity'] = Label.REGISTERED_CLUSTERS
+        experimental_setup['conformity'] = Label.REGISETRED_UNSUPERVISED
 
         experimental_setup['dataset'] = RegisteredDataset.DATASET_LIST
 
@@ -449,9 +450,9 @@ class Input:
                         exit(1)
                     experimental_setup['metrics'] = [value]
                 elif param == '-conformity':
-                    if value not in Label.REGISTERED_CLUSTERS:
+                    if value not in Label.REGISETRED_UNSUPERVISED:
                         print('Cluster algorithm not registered! All possibilities are:')
-                        print(Label.REGISTERED_CLUSTERS)
+                        print(Label.REGISETRED_UNSUPERVISED)
                         exit(1)
                     experimental_setup['conformity'] = [value]
                 elif param == '--recommender':
@@ -525,7 +526,7 @@ class Input:
         experimental_setup['opt'] = Label.EVALUATION_METRICS
         # experimental_setup['metrics'] = Label.REGISTERED_METRICS
 
-        experimental_setup['conformity'] = Label.REGISTERED_CLUSTERS
+        experimental_setup['conformity'] = Label.REGISETRED_UNSUPERVISED
         experimental_setup['view'] = Label.EVALUATION_VIEWS
 
         experimental_setup['dataset'] = RegisteredDataset.DATASET_LIST

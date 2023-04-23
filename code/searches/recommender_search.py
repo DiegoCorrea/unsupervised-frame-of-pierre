@@ -21,7 +21,7 @@ class RecommenderSearch:
     """
 
     def __init__(self, recommender: str, dataset: str):
-        self.measures = ['mae']
+        self.measures = ['rmse', 'mae']
         self.dataset = RegisteredDataset.load_dataset(dataset)
         self.recommender_name = recommender
         self.recommender = None

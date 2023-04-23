@@ -42,12 +42,10 @@ class PathDirFile:
     # Pre-processing step methods
     # ########################################################################################### #
     @staticmethod
-    def save_split_time_file(data_df: DataFrame, dataset: str):
+    def save_split_time_file(dataset: str):
         """
         Method to save the time file expended on the dataset split, which deal with the preprocessing execution time.
         Save into: data/app/{dataset}/time/split/TIME.csv
-
-        :param data_df: A DataFrame instance to be saved.
 
         :param dataset: A string that's representing the dataset name.
         """
@@ -55,7 +53,7 @@ class PathDirFile:
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
 
-        data_df.to_csv("/".join([save_in_dir, PathDirFile.TIME_FILE]))
+        return "/".join([save_in_dir, PathDirFile.TIME_FILE])
 
     @staticmethod
     def load_split_time_file(dataset: str) -> DataFrame:
@@ -163,7 +161,9 @@ class PathDirFile:
 
         :return: A string like data/hyperparameters/{dataset}/{opt}/{distribution}/{algorithm}.json.
         """
-        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, distribution])
+        save_in_dir = "/".join([
+            PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, distribution
+        ])
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
         return "/".join([save_in_dir, algorithm + ".json"])
@@ -180,7 +180,9 @@ class PathDirFile:
 
         :return: A string like data/hyperparameters/{dataset}/{opt}/{distribution}/{algorithm}.json.
         """
-        save_in_dir = "/".join([PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, distribution])
+        save_in_dir = "/".join([
+            PathDirFile.HYPERPARAMETERS_DIR, dataset, opt, distribution
+        ])
         return "/".join([save_in_dir, algorithm + ".json"])
 
     # ########################################################################################### #
@@ -214,6 +216,37 @@ class PathDirFile:
         :return: A string like data/experiment/{dataset}/time/search/{recommender}/time.csv.
         """
         save_in_dir = "/".join([PathDirFile.EXPERIMENT_DIR, dataset, 'time', 'searches', algorithm])
+        return "/".join([save_in_dir, PathDirFile.TIME_FILE])
+
+    # Search Time
+    @staticmethod
+    def set_search_conformity_time_file(dataset: str, algorithm: str, distribution: str) -> str:
+        """
+        Method to set the file path, which deal with the search execution time.
+
+        :param dataset: A string that's representing the dataset name.
+        :param algorithm: A string that's representing the recommender algorithm name.
+        :param distribution: TODO
+
+        :return: A string like data/experiment/{dataset}/time/searches/{distribution}/{algorithm}/time.csv.
+        """
+        save_in_dir = "/".join([PathDirFile.EXPERIMENT_DIR, dataset, 'time', 'searches', distribution, algorithm])
+        if not os.path.exists(save_in_dir):
+            os.makedirs(save_in_dir)
+        return "/".join([save_in_dir, PathDirFile.TIME_FILE])
+
+    @staticmethod
+    def get_search_conformity_time_file(dataset: str, algorithm: str, distribution: str) -> str:
+        """
+        Method to get the file path, which deal with the search execution time.
+
+        :param dataset: A string that's representing the dataset name.
+        :param algorithm: A string that's representing the recommender algorithm name.
+        :param distribution: TODO
+
+        :return: A string like data/experiment/{dataset}/time/search/{distribution}/{recommender}/time.csv.
+        """
+        save_in_dir = "/".join([PathDirFile.EXPERIMENT_DIR, dataset, 'time', 'searches', distribution, algorithm])
         return "/".join([save_in_dir, PathDirFile.TIME_FILE])
 
     # ########################################################################################### #
