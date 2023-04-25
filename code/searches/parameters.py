@@ -30,12 +30,12 @@ class ConformityParams:
 
     # Cluster Grid Search
     CLUSTER_PARAMS_GRID = {
-        'min_samples': [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89],
+        'min_samples': [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37],
         'eps': [
-            0.05, 0.10, 0.15, 0.20, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9,
+            0.05, 0.10, 0.15, 0.20, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55,
         ],
         'metric': [
             'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan',
-            'braycurtis', 'canberra', 'chebyshev', 'correlation', 'hamming', 'sqeuclidean'
+            'braycurtis', 'canberra', 'chebyshev', 'correlation', 'hamming'
         ]
     }

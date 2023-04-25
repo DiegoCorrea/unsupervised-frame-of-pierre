@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 class ManualConformityAlgorithmSearch:
     """
-    Class used to lead with the Random Search
+    Class used to lead with the Manual Search of Unsupervised Algorithms
     """
 
     def __init__(self, experimental_settings: dict):
@@ -39,13 +39,12 @@ class ManualConformityAlgorithmSearch:
     @staticmethod
     def load_conformity_algorithm_instance(conformity_str, params):
         """
-        TODO
+        It prepares the algorithm instance.
         """
 
         # K-Means Variations
         if conformity_str == Label.KMEANS:
-            temp = KMeans(n_clusters=params['n_clusters'], init='k-means++')
-            return temp
+            return KMeans(n_clusters=params['n_clusters'], init='k-means++')
         elif conformity_str == Label.FCM:
             return FCM(n_clusters=params['n_clusters'])
         elif conformity_str == Label.BISECTING:
@@ -74,7 +73,7 @@ class ManualConformityAlgorithmSearch:
     @staticmethod
     def fit(conformity_str, users_pref_dist_df, users_preferences_instance):
         """
-        TODO
+        It trains and find the clusters in the data.
         """
         # Train
         if conformity_str != Label.FCM:
@@ -103,6 +102,9 @@ class ManualConformityAlgorithmSearch:
             )
 
     def search(self, params, conformity_str):
+        """
+        It inits the search for the value.
+        """
         silhouette_list = []
 
         for trial in range(1, Constants.N_TRIAL_VALUE + 1):
@@ -124,6 +126,7 @@ class ManualConformityAlgorithmSearch:
                     continue
 
                 silhouette_list.append(silhouette_score(users_pref_dist_df, clusters))
+
         return {
             "silhouette": mean(silhouette_list) if len(silhouette_list) else 0,
             "params": params
@@ -131,7 +134,7 @@ class ManualConformityAlgorithmSearch:
 
     def run(self, conformity_str: str):
         """
-        Start to run the Manual Grid Search for Unsupervised Learning Clustering Algorithms
+        Start to run the Manual Grid Search for Unsupervised Learning Clustering Algorithms.
         """
         best_silhouette = 0
         best_param = None
@@ -143,7 +146,6 @@ class ManualConformityAlgorithmSearch:
             params_list = self.param_grid
 
         # Performing manual gridsearch
-
         payload = Parallel(n_jobs=Constants.N_CORES, verbose=10)(
             delayed(self.search)(
                 params=params, conformity_str=conformity_str
@@ -159,8 +161,4 @@ class ManualConformityAlgorithmSearch:
             best_params=best_param, dataset=self.dataset.system_name,
             algorithm=conformity_str, distribution=self.distribution_name
         )
-        # return {
-        #     "silhouette": best_silhouette,
-        #     "best_params": best_param
-        # }
 
