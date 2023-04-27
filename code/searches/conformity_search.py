@@ -1,4 +1,3 @@
-import itertools
 import logging
 
 from fcmeans import FCM
@@ -123,6 +122,7 @@ class ManualConformityAlgorithmSearch:
                 )
 
                 if len(set(clusters)) == 1:
+                    silhouette_list.append(0)
                     continue
 
                 silhouette_list.append(silhouette_score(users_pref_dist_df, clusters))
@@ -132,7 +132,7 @@ class ManualConformityAlgorithmSearch:
             "params": params
         }
 
-    def run(self, conformity_str: str):
+    def run(self, conformity_str: str, recommender: str):
         """
         Start to run the Manual Grid Search for Unsupervised Learning Clustering Algorithms.
         """
@@ -158,7 +158,7 @@ class ManualConformityAlgorithmSearch:
 
         # Saving the best
         SaveAndLoad.save_hyperparameters_conformity(
-            best_params=best_param, dataset=self.dataset.system_name,
-            algorithm=conformity_str, distribution=self.distribution_name
+            best_params=best_param, dataset=self.dataset.system_name, recommender=recommender,
+            cluster=conformity_str, distribution=self.distribution_name
         )
 

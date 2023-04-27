@@ -48,21 +48,24 @@ class SaveAndLoad:
         return params
 
     @staticmethod
-    def save_hyperparameters_conformity(best_params: dict, dataset: str, algorithm: str, distribution: str):
+    def save_hyperparameters_conformity(
+            best_params: dict, dataset: str, recommender: str, cluster: str, distribution: str):
         """
         TODO: Docstring
         """
         with open(PathDirFile.set_conformity_hyperparameter_file(
-                opt=Label.CONFORMITY, dataset=dataset, algorithm=algorithm, distribution=distribution), 'w') as fp:
+                opt=Label.CONFORMITY, dataset=dataset, recommender=recommender, cluster=cluster,
+                distribution=distribution
+        ), 'w') as fp:
             json.dump(best_params, fp)
 
     @staticmethod
-    def load_hyperparameters_conformity(dataset: str, algorithm: str, distribution: str):
+    def load_hyperparameters_conformity(dataset: str, recommender: str, cluster: str, distribution: str):
         """
         TODO: Docstring
         """
         path_to_open = PathDirFile.get_conformity_hyperparameter_file(
-            opt=Label.CONFORMITY, dataset=dataset, algorithm=algorithm, distribution=distribution)
+            opt=Label.CONFORMITY, dataset=dataset, recommender=recommender, cluster=cluster, distribution=distribution)
         with open(path_to_open) as json_file:
             params = json.load(json_file)
 

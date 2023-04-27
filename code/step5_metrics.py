@@ -195,6 +195,7 @@ class PierreStep5(Step):
                 tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector
         )
         self.print_basic_info_by_instance(
+                cluster=cluster,
                 recommender=recommender, dataset=dataset, trial=trial, fold=fold,
                 distribution=distribution, fairness=fairness, relevance=relevance,
                 tradeoff_weight=weight, tradeoff=tradeoff, selector=selector

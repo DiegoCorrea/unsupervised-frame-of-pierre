@@ -74,7 +74,7 @@ class PierreStep2(Step):
         )
         for algorithm in self.experimental_settings['cluster']:
             print(f"Starting Algorithm: {algorithm}")
-            search_instance.run(conformity_str=algorithm)
+            search_instance.run(conformity_str=algorithm, recommender=self.experimental_settings['recommender'])
         #
         # Finishing the counter
         self.finish_count()
