@@ -82,21 +82,39 @@ class PierreStep7(Step):
     def conformity_charts(self):
         for dataset_name in self.experimental_settings['dataset']:
             print("|" * 100)
-            print("-"*10, " ", dataset_name, " ", "-"*10)
+            print("-"*45, " ", dataset_name, " ", "-"*45)
             print("|" * 100)
 
             jaccard_results = SaveAndLoad.load_conformity_metric_compiled(
                 dataset=dataset_name, metric=Label.JACCARD_SCORE
             )
-            ConformityGraphics.silhouette_group_bar(
-                jaccard_results, dataset_name, Label.REGISETRED_UNSUPERVISED, Label.JACCARD_SCORE
+
+            print("Jaccard Lines: [Candidate Items] Weight by Conformity Algorithms")
+            ConformityGraphics.weight_by_jaccard_line(
+                data=jaccard_results[jaccard_results[Label.CONFORMITY_DIST_MEANING] == Label.USERS_CAND_ITEMS],
+                dataset_name=dataset_name, conformity_algos=Label.REGISETRED_UNSUPERVISED,
+                rule=Label.USERS_CAND_ITEMS
+            )
+
+            print("Jaccard Lines: [Recommendation List] Weight by Conformity Algorithms")
+            ConformityGraphics.weight_by_jaccard_line(
+                data=jaccard_results[jaccard_results[Label.CONFORMITY_DIST_MEANING] == Label.USERS_REC_LISTS],
+                dataset_name=dataset_name, conformity_algos=Label.REGISETRED_UNSUPERVISED,
+                rule=Label.USERS_REC_LISTS
             )
 
             silhlouete_results = SaveAndLoad.load_conformity_metric_compiled(
                 dataset=dataset_name, metric=Label.SILHOUETTE_SCORE
             )
-            ConformityGraphics.silhouette_group_bar(
-                silhlouete_results, dataset_name, Label.REGISETRED_UNSUPERVISED, Label.SILHOUETTE_SCORE
+
+            print("Silhouette Lines: Weight by Conformity Algorithms")
+            ConformityGraphics.weight_by_silhouette_line(
+                data=silhlouete_results, dataset_name=dataset_name, conformity_algos=Label.REGISETRED_UNSUPERVISED
+            )
+
+            print("Silhouette Boxplot: Preferences and Candidates")
+            ConformityGraphics.pref_cand_silhouette_boxplot(
+                data=silhlouete_results, dataset_name=dataset_name, conformity_algos=Label.REGISETRED_UNSUPERVISED
             )
 
     def conformity_analyses(self):

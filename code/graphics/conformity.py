@@ -1,63 +1,133 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from pandas import DataFrame
 
+from settings.charts import ChartsConfig
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
 
 
 class ConformityGraphics:
+    """
+    TODO
+    """
+
     @staticmethod
-    def silhouette_group_bar(results, dataset_name, conformity_algos, metric):
-        df = results.groupby(by=[Label.CONFORMITY_DIST_MEANING])
-        # groups_label = [Label.USERS_PREF, Label.USERS_CAND_ITEMS, Label.USERS_REC_LISTS]
-        groups_label = []
-        means_dict = {label: [] for label in conformity_algos}
-        for group in df:
-            print(group[0])
-            groups_label.append(group[0])
-            for index, row in group[1].iterrows():
-                _, algo_name, _, _, _, _, _, _ = row['COMBINATION'].split("-")
-                means_dict[algo_name].append(round(abs(row[metric]) * 100, 0))
-        print(means_dict)
+    def pref_cand_silhouette_boxplot(data: DataFrame, dataset_name: str, conformity_algos: list):
+        """
+        TODO
+        """
 
-        width = 1/(len(means_dict) + 2)  # the width of the bars
-        x = np.arange(len(groups_label))
+        metric = Label.SILHOUETTE_SCORE
+        X = conformity_algos
 
-        # plt.figure(figsize=(8, 6))
-        fig, ax = plt.subplots()
-        i = 1
-        sides = 1
-        if len(conformity_algos) % 2 == 0:
-            for algo in conformity_algos:
-                if i % 2 == 0:
-                    bar = ax.bar(x - (width * sides), means_dict[algo], width, label=algo)
-                    sides += 1
-                else:
-                    bar = ax.bar(x + (width * sides), means_dict[algo], width, label=algo)
-                ax.bar_label(bar, padding=3)
-                i += 1
-        else:
-            for algo in conformity_algos:
-                if i % 3 == 0:
-                    bar = ax.bar(x, means_dict[algo], width, label=algo)
-                elif i % 3 == 1:
-                    bar = ax.bar(x - (width * sides), means_dict[algo], width, label=algo)
-                else:
-                    bar = ax.bar(x + (width * sides), means_dict[algo], width, label=algo)
-                    sides += 1
-                ax.bar_label(bar, padding=3)
-                i += 1
+        data_pref = data[data[Label.CONFORMITY_DIST_MEANING] == Label.USERS_PREF]
+        data_cand = data[data[Label.CONFORMITY_DIST_MEANING] == Label.USERS_CAND_ITEMS]
 
-        # Add some text for labels, title and custom x-axis tick labels, etc.
-        ax.set_ylabel('Scores')
-        ax.set_title(metric)
-        ax.set_xticks(x, groups_label)
-        ax.legend()
-        plt.xticks(rotation=15)
-        lgd = plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.35), fancybox=True, shadow=True, ncol=3)
-        fig.tight_layout()
+        user_pref_values = [
+            np.mean(data_pref[data_pref[Label.CONFORMITY] == algo][Label.EVALUATION_METRICS].abs().tolist()) for algo in
+            X
+        ]
+        cand_items_values = [
+            np.mean(data_cand[data_cand[Label.CONFORMITY] == algo][Label.EVALUATION_METRICS].abs().tolist()) for algo in
+            X
+        ]
+
+        X_axis = np.arange(len(X))
+
+        plt.bar(X_axis - 0.2, user_pref_values, 0.4, label="Preferences")
+        plt.bar(X_axis + 0.2, cand_items_values, 0.4, label="Candidates")
+
+        plt.xticks(X_axis, X)
+        plt.xlabel("Algorithms")
+        plt.ylabel("Silhouette Value")
+        plt.xticks(rotation=45)
+        plt.legend()
+
         # Pasta para salvar a figura
-        file_dir = PathDirFile.set_graphics_file(dataset_name, metric + '.png')
+        filename = "_".join([metric, Label.USERS_PREF, Label.USERS_CAND_ITEMS, ".png"])
+        file_dir = PathDirFile.set_graphics_file(dataset_name, filename)
+        # Salvar figura no disco
+        plt.savefig(
+            file_dir,
+            format='png',
+            dpi=400,
+            bbox_inches='tight'
+        )
+        # Figura fechada
+        plt.close('all')
+
+    @staticmethod
+    def weight_by_silhouette_line(data: DataFrame, dataset_name: str, conformity_algos: list):
+        """
+        TODO
+        """
+
+        used_data = data[data[Label.TRADEOFF_WEIGHT_LABEL].isin(Label.CONST_WEIGHT)]
+        rec_list_df = used_data[used_data[Label.CONFORMITY_DIST_MEANING] == Label.USERS_REC_LISTS]
+
+        fig = plt.figure(figsize=(8, 6))
+        ax = fig.add_subplot(1, 1, 1)
+        ax.grid(True)
+        plt.grid(True)
+        plt.rc('xtick', labelsize=16)
+        plt.rc('ytick', labelsize=16)
+        plt.xlabel("Tradeoff Weight", fontsize=18)
+        plt.ylabel("Silhouette Value", fontsize=18)
+
+        n = len(conformity_algos)
+        for algo, m, l in zip(conformity_algos, ChartsConfig.markers_list[:n], ChartsConfig.line_style_list[:n]):
+            df = rec_list_df[rec_list_df[Label.CONFORMITY] == algo]
+            plt.plot([str(x) for x in df[Label.TRADEOFF_WEIGHT_LABEL].tolist()],
+                     df[Label.EVALUATION_METRICS].abs().tolist(), alpha=0.5, linestyle=l, marker=m,
+                     label=str(algo), linewidth=4)
+
+        lgd = plt.legend(loc=9, bbox_to_anchor=(0.5, -0.15), ncol=3, prop={'size': 18})
+        plt.xticks(rotation=30)
+
+        # Pasta para salvar a figura
+        filename = "_".join([Label.SILHOUETTE_SCORE, Label.TRADEOFF_WEIGHT_LABEL, ".png"])
+        file_dir = PathDirFile.set_graphics_file(dataset_name, filename)
+        # Salvar figura no disco
+        plt.savefig(
+            file_dir,
+            format='png',
+            dpi=400,
+            bbox_inches='tight'
+        )
+        # Figura fechada
+        plt.close('all')
+
+    @staticmethod
+    def weight_by_jaccard_line(data: DataFrame, dataset_name: str, conformity_algos: list, rule: str):
+        """
+        TODO
+        """
+
+        used_data = data[data[Label.TRADEOFF_WEIGHT_LABEL].isin(Label.CONST_WEIGHT)]
+
+        fig = plt.figure(figsize=(8, 6))
+        ax = fig.add_subplot(1, 1, 1)
+        ax.grid(True)
+        plt.grid(True)
+        plt.rc('xtick', labelsize=16)
+        plt.rc('ytick', labelsize=16)
+        plt.xlabel("Tradeoff Weight", fontsize=18)
+        plt.ylabel("Jaccard Value", fontsize=18)
+
+        n = len(conformity_algos)
+        for algo, m, l in zip(conformity_algos, ChartsConfig.markers_list[:n], ChartsConfig.line_style_list[:n]):
+            df = used_data[used_data[Label.CONFORMITY] == algo]
+            plt.plot([str(x) for x in df[Label.TRADEOFF_WEIGHT_LABEL].tolist()],
+                     df[Label.EVALUATION_METRICS].abs().tolist(), alpha=0.5, linestyle=l, marker=m,
+                     label=str(algo), linewidth=4)
+
+        lgd = plt.legend(loc=9, bbox_to_anchor=(0.5, -0.15), ncol=3, prop={'size': 18})
+        plt.xticks(rotation=30)
+
+        # Pasta para salvar a figura
+        filename = "_".join([Label.JACCARD_SCORE, rule, ".png"])
+        file_dir = PathDirFile.set_graphics_file(dataset_name, filename)
         # Salvar figura no disco
         plt.savefig(
             file_dir,

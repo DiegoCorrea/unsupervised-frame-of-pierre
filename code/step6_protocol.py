@@ -100,8 +100,16 @@ class PierreStep6(Step):
                 users_rec_lists_list.append(metric_df.iloc[1][Label.JACCARD_SCORE])
 
         merged_metrics_df = DataFrame([
-            [mean(users_cand_items_list), Label.USERS_CAND_ITEMS], [mean(users_rec_lists_list), Label.USERS_REC_LISTS]],
-            columns=[Label.JACCARD_SCORE, Label.CONFORMITY_DIST_MEANING]
+            [mean(users_cand_items_list), Label.USERS_CAND_ITEMS,
+             recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight],
+            [mean(users_rec_lists_list), Label.USERS_REC_LISTS,
+             recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight]
+        ],
+            columns=[
+                Label.EVALUATION_METRICS, Label.CONFORMITY_DIST_MEANING,
+                Label.RECOMMENDER, Label.CONFORMITY, Label.TRADEOFF, Label.DISTRIBUTION_LABEL,
+                Label.CALIBRATION_MEASURE_LABEL, Label.RELEVANCE, Label.SELECTOR_LABEL, Label.TRADEOFF_WEIGHT_LABEL
+            ]
         )
 
         return merged_metrics_df
@@ -151,11 +159,26 @@ class PierreStep6(Step):
                 users_rec_lists_list.append(metric_df.iloc[2][Label.SILHOUETTE_SCORE])
 
         merged_metrics_df = DataFrame([
-            [mean(users_pref_list), Label.USERS_PREF],
-            [mean(users_cand_items_list), Label.USERS_CAND_ITEMS],
-            [mean(users_rec_lists_list), Label.USERS_REC_LISTS]],
-            columns=[Label.SILHOUETTE_SCORE, Label.CONFORMITY_DIST_MEANING]
+            [mean(users_pref_list), Label.USERS_PREF,
+             recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight],
+            [mean(users_cand_items_list), Label.USERS_CAND_ITEMS,
+             recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight],
+            [mean(users_rec_lists_list), Label.USERS_REC_LISTS,
+             recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight]],
+            columns=[
+                Label.EVALUATION_METRICS, Label.CONFORMITY_DIST_MEANING,
+                Label.RECOMMENDER, Label.CONFORMITY, Label.TRADEOFF, Label.DISTRIBUTION_LABEL,
+                Label.CALIBRATION_MEASURE_LABEL, Label.RELEVANCE, Label.SELECTOR_LABEL, Label.TRADEOFF_WEIGHT_LABEL
+            ]
         )
+
+        # df = DataFrame(
+        #     [[recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight]],
+        #     columns=[
+        #         Label.RECOMMENDER, Label.CONFORMITY, Label.TRADEOFF, Label.DISTRIBUTION_LABEL,
+        #         Label.CALIBRATION_MEASURE_LABEL, Label.RELEVANCE, Label.SELECTOR_LABEL, Label.TRADEOFF_WEIGHT_LABEL
+        #     ]
+        # )
 
         return merged_metrics_df
 
