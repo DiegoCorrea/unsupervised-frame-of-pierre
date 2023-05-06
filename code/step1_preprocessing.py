@@ -7,6 +7,7 @@ import pandas as pd
 from joblib import Parallel, delayed
 
 from datasets.registred_datasets import RegisteredDataset
+from graphics.charts import DatasetChart
 from scikit_pierre.classes.genre import genre_probability_approach
 from scikit_pierre.distributions.accessible import distributions_funcs_pandas
 from scikit_pierre.measures.accessible import calibration_measures_funcs
@@ -86,7 +87,11 @@ class PierreStep1(Step):
         """
         TODO: Docstring
         """
-        pass
+        for dataset_name in RegisteredDataset.DATASET_LIST:
+            print(dataset_name)
+            dt_chat = DatasetChart(dataset_name)
+            dt_chat.item_long_tail()
+            dt_chat.genres()
 
     def create_analyzes(self):
         """

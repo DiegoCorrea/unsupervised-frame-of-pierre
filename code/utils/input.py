@@ -39,25 +39,35 @@ class Input:
         """
         Method to read the settings from the terminal/keyboard. The possible options are:
 
-        - opt: TODO
+        - opt can be: SPLIT, CHART, ANALYZE, and DISTRIBUTION. Ex: -opt=CHAT
 
-        - dataset can be: ml-1m, yahoo-movies (see the registered datasets).
+        - dataset can be: ml-1m, yahoo-movies (see the registered datasets). Ex: --dataset=ml-1m
 
-        - n_folds can be: 1, 2, 3 or higher.
+        - n_folds can be: 1, 2, 3 or higher. Ex: --n_folds=5
 
-        - n_trials can be: 1, 2, 3 or higher.
+        - n_trials can be: 1, 2, 3 or higher. Ex --n_trials=7
+
+        - distribution can be: CWS, and WPS. Ex: --distribution=CWS
+
+        - fold can be: 1, 2, 3 and others (based on the n_folds). Ex: --fold=5
+
+        - trial can be: 1, 2, 3 and others (based on the n_trials). Ex: --trial=3
 
         :return: A dict with the input settings.
         """
         experimental_setup = dict()
+
         # Experimental setup information
         experimental_setup['opt'] = Label.DATASET_SPLIT
+
         experimental_setup['dataset'] = RegisteredDataset.DEFAULT_DATASET
-        experimental_setup['distribution'] = Label.DEFAULT_DISTRIBUTION
         experimental_setup['n_folds'] = Constants.K_FOLDS_VALUE
         experimental_setup['n_trials'] = Constants.N_TRIAL_VALUE
+
+        experimental_setup['distribution'] = Label.DEFAULT_DISTRIBUTION
         experimental_setup['fold'] = list(range(1, Constants.K_FOLDS_VALUE + 1))
         experimental_setup['trial'] = list(range(1, Constants.N_TRIAL_VALUE + 1))
+
         if len(sys.argv) > 1:
             for arg in sys.argv[1:]:
                 param, value = arg.split('=')
@@ -105,10 +115,12 @@ class Input:
 
                 else:
                     print(f"The parameter {param} is not configured in this feature.")
+                    exit(1)
         else:
             print("More information are needed!")
-            print("All params possibilities are: -opt --dataset, --n_folds and --n_trials.")
-            print("Example: python step1_preprocessing.py -opt=SPLIT --dataset=ml-1m --n_trials=10")
+            print("All params possibilities are: "
+                  "-opt, --dataset, --n_folds, --n_trials, --fold, --trial, --distribution.")
+            print("Example: python step1_preprocessing.py -opt=SPLIT --dataset=ml-1m --n_trials=10 --n_folds=5")
             exit(1)
         return experimental_setup
 

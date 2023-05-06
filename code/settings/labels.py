@@ -22,7 +22,7 @@ class Label:
     ########################################################
     # Preprocessing labels
     DATASET_SPLIT = 'SPLIT'
-    DATASET_CHART = 'CHARTS'
+    DATASET_CHART = 'CHART'
     DATASET_ANALYZE = 'ANALYZE'
     DATASET_DISTRIBUTION = 'DISTRIBUTION'
 
