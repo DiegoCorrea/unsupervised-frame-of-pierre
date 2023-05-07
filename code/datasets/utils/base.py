@@ -271,23 +271,23 @@ class Dataset:
         for trial in range(1, n_trials + 1):
             logger.info("+ Preparing trial: " + str(trial))
             results = split.split_with_joblib(transactions_df=self.transactions, trial=trial, n_folds=n_folds)
-            train_df = results[0]
-            test_df = results[1]
             for k in range(Constants.K_FOLDS_VALUE):
+                train_df, test_df = results[k]
+
                 logger.info("+ + Preparing fold: " + str(k + 1))
                 fold_dir = "/".join([self.dataset_clean_path, "trial-" + str(trial), "fold-" + str(k + 1)])
                 if not os.path.exists(fold_dir):
                     os.makedirs(fold_dir)
 
                 train_path = os.path.join(fold_dir, PathDirFile.TRAIN_FILE)
-                if 'index' in train_df[k].columns.tolist():
-                    train_df[k].drop(columns=['index'], inplace=True)
-                train_df[k].to_csv(train_path, index=False)
+                if 'index' in train_df.columns.tolist():
+                    train_df.drop(columns=['index'], inplace=True)
+                train_df.to_csv(train_path, index=False)
 
                 test_path = os.path.join(fold_dir, PathDirFile.TEST_FILE)
-                if 'index' in test_df[k].columns.tolist():
-                    test_df[k].drop(columns=['index'], inplace=True)
-                test_df[k].to_csv(test_path, index=False)
+                if 'index' in test_df.columns.tolist():
+                    test_df.drop(columns=['index'], inplace=True)
+                test_df.to_csv(test_path, index=False)
 
     @staticmethod
     def cut_users(transactions: pd.DataFrame) -> pd.DataFrame:
@@ -297,8 +297,8 @@ class Dataset:
         :return: A pandas Dataframe with the users transactions.
         """
         user_counts = transactions[Label.USER_ID].value_counts()
-        return transactions[transactions[Label.USER_ID].isin(
-            [k for k, v in user_counts.items() if v > Constants.PROFILE_LEN_CUT_VALUE])].copy()
+        selected_users = [k for k, v in user_counts.items() if v > Constants.PROFILE_LEN_CUT_VALUE]
+        return transactions[transactions[Label.USER_ID].isin(selected_users)].copy()
 
     ################################################
     def raw_data_basic_info(self):
@@ -309,13 +309,15 @@ class Dataset:
             # item_genre = getattr(row, GENRES_LABEL)
             splitted = item.split('|')
             return [c for c in splitted]
+
         total_of_users = len(self.raw_transactions[Label.USER_ID].unique())
         total_of_items = len(self.raw_items)
         total_of_transactions = len(self.raw_transactions)
         if self.system_name == 'taste-profile':
             total_of_classes = 0
         else:
-            total_of_classes = len(set(list(itertools.chain.from_iterable(list(map(classes, self.raw_items[Label.GENRES].tolist()))))))
+            total_of_classes = len(
+                set(list(itertools.chain.from_iterable(list(map(classes, self.raw_items[Label.GENRES].tolist()))))))
         print("RAW DATASET INFORMATION")
         print("Total of Users: ", total_of_users)
         print("Total of Items: ", total_of_items)
@@ -329,10 +331,12 @@ class Dataset:
             # item_genre = getattr(row, GENRES_LABEL)
             splitted = item.split('|')
             return [c for c in splitted]
+
         total_of_users = len(self.transactions[Label.USER_ID].unique())
         total_of_items = len(self.items)
         total_of_transactions = len(self.transactions)
-        total_of_classes = len(set(list(itertools.chain.from_iterable(list(map(classes, self.items[Label.GENRES].tolist()))))))
+        total_of_classes = len(
+            set(list(itertools.chain.from_iterable(list(map(classes, self.items[Label.GENRES].tolist()))))))
         print("CLEAN DATASET INFORMATION")
         print("Total of Users: ", total_of_users)
         print("Total of Items: ", total_of_items)

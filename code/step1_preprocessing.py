@@ -144,7 +144,7 @@ class PierreStep1(Step):
 
     def main(self):
         """
-        TODO: Docstring
+        Main method used to choice the run option.
         """
         if self.experimental_settings['opt'] == Label.DATASET_CHART:
             self.create_charts()
@@ -152,8 +152,10 @@ class PierreStep1(Step):
             self.create_analyzes()
         elif self.experimental_settings['opt'] == Label.DATASET_DISTRIBUTION:
             self.create_distribution()
-        else:
+        elif self.experimental_settings['opt'] == Label.DATASET_SPLIT:
             self.create_folds()
+        else:
+            print("Option not found!")
 
 
 if __name__ == '__main__':
