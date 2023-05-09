@@ -92,14 +92,14 @@ class PierreStep7(Step):
             print("Jaccard Lines: [Candidate Items] Weight by Conformity Algorithms")
             ConformityGraphics.weight_by_jaccard_line(
                 data=jaccard_results[jaccard_results[Label.CONFORMITY_DIST_MEANING] == Label.USERS_CAND_ITEMS],
-                dataset_name=dataset_name, conformity_algos=Label.REGISETRED_UNSUPERVISED,
+                dataset_name=dataset_name, conformity_algos=Label.REGISTERED_UNSUPERVISED,
                 rule=Label.USERS_CAND_ITEMS
             )
 
             print("Jaccard Lines: [Recommendation List] Weight by Conformity Algorithms")
             ConformityGraphics.weight_by_jaccard_line(
                 data=jaccard_results[jaccard_results[Label.CONFORMITY_DIST_MEANING] == Label.USERS_REC_LISTS],
-                dataset_name=dataset_name, conformity_algos=Label.REGISETRED_UNSUPERVISED,
+                dataset_name=dataset_name, conformity_algos=Label.REGISTERED_UNSUPERVISED,
                 rule=Label.USERS_REC_LISTS
             )
 
@@ -109,12 +109,12 @@ class PierreStep7(Step):
 
             print("Silhouette Lines: Weight by Conformity Algorithms")
             ConformityGraphics.weight_by_silhouette_line(
-                data=silhlouete_results, dataset_name=dataset_name, conformity_algos=Label.REGISETRED_UNSUPERVISED
+                data=silhlouete_results, dataset_name=dataset_name, conformity_algos=Label.REGISTERED_UNSUPERVISED
             )
 
             print("Silhouette Boxplot: Preferences and Candidates")
             ConformityGraphics.pref_cand_silhouette_boxplot(
-                data=silhlouete_results, dataset_name=dataset_name, conformity_algos=Label.REGISETRED_UNSUPERVISED
+                data=silhlouete_results, dataset_name=dataset_name, conformity_algos=Label.REGISTERED_UNSUPERVISED
             )
 
     def conformity_analyses(self):

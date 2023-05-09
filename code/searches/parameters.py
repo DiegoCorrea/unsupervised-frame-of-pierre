@@ -25,7 +25,9 @@ class SurpriseParams:
 class ConformityParams:
     # Cluster Params
     CLUSTER_PARAMS = {
-        'n_clusters': [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89],
+        'n_clusters': [
+            2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
+        ],
     }
 
     # Cluster Grid Search
@@ -33,6 +35,28 @@ class ConformityParams:
         'min_samples': [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37],
         'eps': [
             0.05, 0.10, 0.15, 0.20, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55,
+        ],
+        'metric': [
+            'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan',
+            'braycurtis', 'canberra', 'chebyshev', 'correlation', 'hamming'
+        ]
+    }
+
+    COMPONENT_PARAMS_GRID = {
+        'n_components': [
+            1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
+        ]
+    }
+
+    ESTIMATORS_PARAMS_GRID = {
+        'n_estimators': [
+            1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
+        ]
+    }
+
+    NEIGHBOR_PARAMS_GRID = {
+        'n_neighbors': [
+            1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97
         ],
         'metric': [
             'cityblock', 'cosine', 'euclidean', 'l1', 'l2', 'manhattan',

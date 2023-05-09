@@ -175,9 +175,7 @@ class PierreStep5(Step):
         """
         TODO
         """
-        print(self.experimental_settings["reload"])
         if self.experimental_settings["reload"] == "YES":
-            print("c")
             try:
                 metric_df = SaveAndLoad.load_conformity_metric(
                     dataset=dataset, trial=trial, fold=fold,

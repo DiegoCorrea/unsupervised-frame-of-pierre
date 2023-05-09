@@ -5,6 +5,8 @@ from pandas import DataFrame
 from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN, Birch, OPTICS, BisectingKMeans, SpectralClustering
 from sklearn.ensemble import IsolationForest
 from sklearn.metrics import silhouette_score, jaccard_score
+from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
+from sklearn.neighbors import LocalOutlierFactor
 from sklearn.neural_network import BernoulliRBM
 
 from scikit_pierre.distributions.accessible import distributions_funcs_pandas
@@ -64,8 +66,9 @@ class ConformityAlgorithms:
             dataset=self.dataset.system_name, recommender=self.recommender_str,
             cluster=self.conformity_str, distribution=self.distribution_str
         )
+        # Cluster Models
 
-        # K-Means Variations
+        # # K-Means Variations
         if self.conformity_str == Label.KMEANS:
             self.users_preferences_instance = KMeans(n_clusters=params['n_clusters'], init='k-means++')
             self.users_candidate_instance = KMeans(n_clusters=params['n_clusters'], init='k-means++')
@@ -79,29 +82,25 @@ class ConformityAlgorithms:
             self.users_candidate_instance = BisectingKMeans(n_clusters=params['n_clusters'], init='k-means++')
             self.users_recommendation_instance = BisectingKMeans(n_clusters=params['n_clusters'], init='k-means++')
 
-        # Hierarchical Variations
+        # # Hierarchical Variations
         elif self.conformity_str == Label.AGGLOMERATIVE:
             self.users_preferences_instance = AgglomerativeClustering(n_clusters=params['n_clusters'])
             self.users_candidate_instance = AgglomerativeClustering(n_clusters=params['n_clusters'])
             self.users_recommendation_instance = AgglomerativeClustering(n_clusters=params['n_clusters'])
 
-        # Spectral Variations
+        # # Spectral Variations
         elif self.conformity_str == Label.SPECTRAL:
             self.users_preferences_instance = SpectralClustering(n_clusters=params['n_clusters'])
             self.users_candidate_instance = SpectralClustering(n_clusters=params['n_clusters'])
             self.users_recommendation_instance = SpectralClustering(n_clusters=params['n_clusters'])
 
-        # Tree Variations
+        # # Tree Variations
         elif self.conformity_str == Label.BIRCH:
             self.users_preferences_instance = Birch(n_clusters=params['n_clusters'])
             self.users_candidate_instance = Birch(n_clusters=params['n_clusters'])
             self.users_recommendation_instance = Birch(n_clusters=params['n_clusters'])
-        elif self.conformity_str == Label.IF:
-            self.users_preferences_instance = IsolationForest()
-            self.users_candidate_instance = IsolationForest()
-            self.users_recommendation_instance = IsolationForest()
 
-        # Search Variations
+        # # Search Variations
         elif self.conformity_str == Label.DBSCAN:
             self.users_preferences_instance = DBSCAN(
                 min_samples=params['min_samples'], eps=params['eps'], metric=params['metric']
@@ -121,6 +120,46 @@ class ConformityAlgorithms:
             )
             self.users_recommendation_instance = OPTICS(
                 min_samples=params['min_samples'], eps=params['eps'], metric=params['metric']
+            )
+
+        # Ensemble Models
+        elif self.conformity_str == Label.IF:
+            self.users_preferences_instance = IsolationForest(n_estimators=params['n_estimators'])
+            self.users_candidate_instance = IsolationForest(n_estimators=params['n_estimators'])
+            self.users_recommendation_instance = IsolationForest(n_estimators=params['n_estimators'])
+
+        # Mixture Models
+        elif self.conformity_str == Label.GAUSSIAN_MIXTURE:
+            self.users_preferences_instance = GaussianMixture(
+                n_components=params['n_components'], init_params='k-means++'
+            )
+            self.users_candidate_instance = GaussianMixture(
+                n_components=params['n_components'], init_params='k-means++'
+            )
+            self.users_recommendation_instance = GaussianMixture(
+                n_components=params['n_components'], init_params='k-means++'
+            )
+        elif self.conformity_str == Label.BAYESIAN_MIXTURE:
+            self.users_preferences_instance = BayesianGaussianMixture(
+                n_components=params['n_components'], init_params='k-means++'
+            )
+            self.users_candidate_instance = BayesianGaussianMixture(
+                n_components=params['n_components'], init_params='k-means++'
+            )
+            self.users_recommendation_instance = BayesianGaussianMixture(
+                n_components=params['n_components'], init_params='k-means++'
+            )
+
+        # Neighbor Models
+        elif self.conformity_str == Label.LOF:
+            self.users_preferences_instance = LocalOutlierFactor(
+                n_neighbors=params['n_neighbors'], metric=params['metric']
+            )
+            self.users_candidate_instance = LocalOutlierFactor(
+                n_neighbors=params['n_neighbors'], metric=params['metric']
+            )
+            self.users_recommendation_instance = LocalOutlierFactor(
+                n_neighbors=params['n_neighbors'], metric=params['metric']
             )
 
     def __load_users_preference_distribution(self):
@@ -202,7 +241,8 @@ class ConformityAlgorithms:
                 X=self.users_rec_lists_dist_df.to_numpy()
             )
 
-        if self.conformity_str == Label.KMEANS or self.conformity_str == Label.BISECTING:
+        if self.conformity_str == Label.KMEANS or self.conformity_str == Label.BISECTING or \
+                self.conformity_str == Label.GAUSSIAN_MIXTURE or self.conformity_str == Label.BAYESIAN_MIXTURE:
             self.users_preferences_labels = self.users_preferences_instance.predict(
                 X=self.users_pref_dist_df
             )
@@ -214,7 +254,8 @@ class ConformityAlgorithms:
             )
         elif self.conformity_str == Label.AGGLOMERATIVE or self.conformity_str == Label.IF or \
                 self.conformity_str == Label.BIRCH or self.conformity_str == Label.OPTICS or \
-                self.conformity_str == Label.SPECTRAL or self.conformity_str == Label.DBSCAN:
+                self.conformity_str == Label.SPECTRAL or self.conformity_str == Label.DBSCAN or \
+                self.conformity_str == Label.LOF:
             self.users_preferences_labels = self.users_preferences_instance.fit_predict(
                 X=self.users_pref_dist_df
             )
@@ -236,20 +277,18 @@ class ConformityAlgorithms:
             )
 
     def __silhouette_avg(self):
-        print(self.users_preferences_labels)
-        print(set(self.users_preferences_labels))
         user_pref_silhouette_avg = 0.0
         users_cand_items_silhouette_avg = 0.0
         users_rec_lists_silhouette_avg = 0.0
 
         if len(set(self.users_preferences_labels)) > 1:
-            user_pref_silhouette_avg = silhouette_score(self.users_pref_dist_df, self.users_preferences_labels)
+            user_pref_silhouette_avg = abs(silhouette_score(self.users_pref_dist_df, self.users_preferences_labels))
 
         if len(set(self.users_candidate_labels)) > 1:
-            users_cand_items_silhouette_avg = silhouette_score(self.users_cand_items_dist_df, self.users_candidate_labels)
+            users_cand_items_silhouette_avg = abs(silhouette_score(self.users_cand_items_dist_df, self.users_candidate_labels))
 
         if len(set(self.users_recommendation_labels)) > 1:
-            users_rec_lists_silhouette_avg = silhouette_score(self.users_rec_lists_dist_df, self.users_recommendation_labels)
+            users_rec_lists_silhouette_avg = abs(silhouette_score(self.users_rec_lists_dist_df, self.users_recommendation_labels))
 
         data = DataFrame(
             [[user_pref_silhouette_avg], [users_cand_items_silhouette_avg], [users_rec_lists_silhouette_avg]],
@@ -266,12 +305,12 @@ class ConformityAlgorithms:
         )
 
     def __group_jaccard_score(self):
-        users_cand_item_score_float = jaccard_score(
+        users_cand_item_score_float = abs(jaccard_score(
             self.users_preferences_labels, self.users_candidate_labels, average='macro'
-        )
-        user_rec_lists_score_float = jaccard_score(
+        ))
+        user_rec_lists_score_float = abs(jaccard_score(
             self.users_preferences_labels, self.users_recommendation_labels, average='macro'
-        )
+        ))
 
         data = DataFrame(
             [[users_cand_item_score_float], [user_rec_lists_score_float]],

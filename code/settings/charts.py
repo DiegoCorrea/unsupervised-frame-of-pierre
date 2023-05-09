@@ -12,10 +12,10 @@ class ChartsConfig:
     scatter_median_line_color = 'goldenrod'
 
     # Markers
-    markers_list = ['o', '^', 's', 'D', 'x', 'p', '.', '1', '|', '*', '2']
+    markers_list = ['o', '^', 's', 'D', 'x', 'p', '.', '1', '|', '*', '2', 's']
 
     # Line Style
-    line_style_list = [':', '--', ':', '-', '-', '-', '--', ':', '--', '-.', '-.']
+    line_style_list = [':', '--', ':', '-', '-', '-', '--', ':', '--', '-.', '-.', '--']
     linear_line_style_list = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
     log_line_style_list = [':', ':', ':', ':', ':', ':', ':', ':', ':']
     special_markers_list = ['o', '^', 's']

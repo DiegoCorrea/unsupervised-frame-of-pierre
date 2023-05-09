@@ -5,7 +5,9 @@ from joblib import Parallel, delayed
 from numpy import mean
 from sklearn.ensemble import IsolationForest
 from sklearn.cluster import DBSCAN, OPTICS, Birch, AgglomerativeClustering, KMeans, SpectralClustering, BisectingKMeans
+from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 from sklearn.model_selection import ParameterGrid
+from sklearn.neighbors import LocalOutlierFactor
 
 from scikit_pierre.measures.accessible import calibration_measures_funcs
 from sklearn.metrics import silhouette_score
@@ -35,39 +37,55 @@ class ManualConformityAlgorithmSearch:
 
         self.cluster_params = ConformityParams.CLUSTER_PARAMS
 
+        self.component_params = ConformityParams.COMPONENT_PARAMS_GRID
+
+        self.estimators_params = ConformityParams.ESTIMATORS_PARAMS_GRID
+
+        self.neighbor_params = ConformityParams.NEIGHBOR_PARAMS_GRID
+
     @staticmethod
     def load_conformity_algorithm_instance(conformity_str, params):
         """
         It prepares the algorithm instance.
         """
 
-        # K-Means Variations
+        # Cluster Models
+
+        # # K-Means Variations
         if conformity_str == Label.KMEANS:
             return KMeans(n_clusters=params['n_clusters'], init='k-means++')
         elif conformity_str == Label.FCM:
             return FCM(n_clusters=params['n_clusters'])
         elif conformity_str == Label.BISECTING:
             return BisectingKMeans(n_clusters=params['n_clusters'], init='k-means++')
-
-        # Hierarchical Variations
+        # # Hierarchical Variations
         elif conformity_str == Label.AGGLOMERATIVE:
             return AgglomerativeClustering(n_clusters=params['n_clusters'])
-
-        # Spectral Variations
+        # # Spectral Variations
         elif conformity_str == Label.SPECTRAL:
             return SpectralClustering(n_clusters=params['n_clusters'])
-
-        # Tree Variations
+        # # Tree Variations
         elif conformity_str == Label.BIRCH:
             return Birch(n_clusters=params['n_clusters'])
-        elif conformity_str == Label.IF:
-            return IsolationForest()
-
-        # Search Variations
+        # # Search Variations
         elif conformity_str == Label.DBSCAN:
             return DBSCAN(min_samples=params['min_samples'], eps=params['eps'], metric=params['metric'])
         elif conformity_str == Label.OPTICS:
             return OPTICS(min_samples=params['min_samples'], eps=params['eps'], metric=params['metric'])
+
+        # Mixture Models
+        elif conformity_str == Label.GAUSSIAN_MIXTURE:
+            return GaussianMixture(n_components=params['n_components'], init_params='k-means++')
+        elif conformity_str == Label.BAYESIAN_MIXTURE:
+            return BayesianGaussianMixture(n_components=params['n_components'], init_params='k-means++')
+
+        # Ensemble Models
+        elif conformity_str == Label.IF:
+            return IsolationForest(n_estimators=params['n_estimators'])
+
+        # Neighbor Models
+        elif conformity_str == Label.LOF:
+            return LocalOutlierFactor(n_neighbors=params['n_neighbors'], metric=params['metric'])
 
     @staticmethod
     def fit(conformity_str, users_pref_dist_df, users_preferences_instance):
@@ -85,13 +103,14 @@ class ManualConformityAlgorithmSearch:
             )
 
         # Clustering
-        if conformity_str == Label.KMEANS or conformity_str == Label.BISECTING:
+        if conformity_str == Label.KMEANS or conformity_str == Label.BISECTING or \
+                conformity_str == Label.GAUSSIAN_MIXTURE or conformity_str == Label.BAYESIAN_MIXTURE:
             return users_preferences_instance.predict(
                 X=users_pref_dist_df
             )
         elif conformity_str == Label.AGGLOMERATIVE or conformity_str == Label.IF or \
-                conformity_str == Label.BIRCH or conformity_str == Label.OPTICS or conformity_str == Label.SPECTRAL or \
-                conformity_str == Label.DBSCAN:
+                conformity_str == Label.BIRCH or conformity_str == Label.OPTICS or \
+                conformity_str == Label.SPECTRAL or conformity_str == Label.DBSCAN or conformity_str == Label.LOF:
             return users_preferences_instance.fit_predict(
                 X=users_pref_dist_df
             )
@@ -123,9 +142,8 @@ class ManualConformityAlgorithmSearch:
 
                 if len(set(clusters)) == 1:
                     silhouette_list.append(0)
-                    continue
-
-                silhouette_list.append(silhouette_score(users_pref_dist_df, clusters))
+                else:
+                    silhouette_list.append(abs(silhouette_score(users_pref_dist_df, clusters)))
 
         return {
             "silhouette": mean(silhouette_list) if len(silhouette_list) else 0,
@@ -140,8 +158,14 @@ class ManualConformityAlgorithmSearch:
         best_param = None
 
         # Chosen the parameter structure
-        if conformity_str in Label.CLUSTERING_ALGORITHMS:
+        if conformity_str in Label.CLUSTERING_LABEL_ALGORITHMS:
             params_list = self.cluster_params
+        elif conformity_str in Label.MIXTURE_LABEL_ALGORITHMS:
+            params_list = self.component_params
+        elif conformity_str in Label.ENSEMBLE_LABEL_ALGORITHMS:
+            params_list = self.estimators_params
+        elif conformity_str in Label.NEIGHBOR_LABEL_ALGORITHMS:
+            params_list = self.neighbor_params
         else:
             params_list = self.param_grid
 
@@ -161,4 +185,3 @@ class ManualConformityAlgorithmSearch:
             best_params=best_param, dataset=self.dataset.system_name, recommender=recommender,
             cluster=conformity_str, distribution=self.distribution_name
         )
-
