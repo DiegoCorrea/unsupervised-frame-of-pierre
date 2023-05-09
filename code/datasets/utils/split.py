@@ -63,7 +63,7 @@ def compute_kfold(
         for train_df, test_df in zip(global_train, global_test)
     )
     resp = list(Parallel(
-        n_jobs=n_jobs, verbose=10, batch_size=64, require='sharedmem', prefer='processes', backend='multiprocessing'
+        n_jobs=n_jobs, verbose=10, batch_size=64, prefer='processes', backend='multiprocessing'
     )(delayed_concat))
 
     return resp
