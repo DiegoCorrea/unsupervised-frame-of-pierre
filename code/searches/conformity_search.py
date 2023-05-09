@@ -3,11 +3,14 @@ import logging
 from fcmeans import FCM
 from joblib import Parallel, delayed
 from numpy import mean
+from sklearn.covariance import EllipticEnvelope
 from sklearn.ensemble import IsolationForest
 from sklearn.cluster import DBSCAN, OPTICS, Birch, AgglomerativeClustering, KMeans, SpectralClustering, BisectingKMeans
+from sklearn.linear_model import SGDOneClassSVM
 from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 from sklearn.model_selection import ParameterGrid
 from sklearn.neighbors import LocalOutlierFactor
+from sklearn.svm import OneClassSVM
 
 from scikit_pierre.measures.accessible import calibration_measures_funcs
 from sklearn.metrics import silhouette_score
@@ -42,6 +45,8 @@ class ManualConformityAlgorithmSearch:
         self.estimators_params = ConformityParams.ESTIMATORS_PARAMS_GRID
 
         self.neighbor_params = ConformityParams.NEIGHBOR_PARAMS_GRID
+
+        self.outlier_params = ConformityParams.OUTLIEAR_PARAMS_GRID
 
     @staticmethod
     def load_conformity_algorithm_instance(conformity_str, params):
@@ -83,6 +88,14 @@ class ManualConformityAlgorithmSearch:
         elif conformity_str == Label.IF:
             return IsolationForest(n_estimators=params['n_estimators'])
 
+        # Outlier Models
+        elif conformity_str == Label.OSVM:
+            return OneClassSVM(nu=params['nu'])
+        elif conformity_str == Label.SGD:
+            return SGDOneClassSVM(nu=params['nu'])
+        elif conformity_str == Label.ENVELOPE:
+            return EllipticEnvelope(contamination=params['nu'])
+
         # Neighbor Models
         elif conformity_str == Label.LOF:
             return LocalOutlierFactor(n_neighbors=params['n_neighbors'], metric=params['metric'])
@@ -102,7 +115,6 @@ class ManualConformityAlgorithmSearch:
                 X=users_pref_dist_df.to_numpy()
             )
 
-        # Clustering
         if conformity_str == Label.KMEANS or conformity_str == Label.BISECTING or \
                 conformity_str == Label.GAUSSIAN_MIXTURE or conformity_str == Label.BAYESIAN_MIXTURE:
             return users_preferences_instance.predict(
@@ -110,7 +122,8 @@ class ManualConformityAlgorithmSearch:
             )
         elif conformity_str == Label.AGGLOMERATIVE or conformity_str == Label.IF or \
                 conformity_str == Label.BIRCH or conformity_str == Label.OPTICS or \
-                conformity_str == Label.SPECTRAL or conformity_str == Label.DBSCAN or conformity_str == Label.LOF:
+                conformity_str == Label.SPECTRAL or conformity_str == Label.DBSCAN or conformity_str == Label.LOF or \
+                conformity_str == Label.SGD or conformity_str == Label.OSVM or conformity_str == Label.ENVELOPE:
             return users_preferences_instance.fit_predict(
                 X=users_pref_dist_df
             )
@@ -166,6 +179,8 @@ class ManualConformityAlgorithmSearch:
             params_list = self.estimators_params
         elif conformity_str in Label.NEIGHBOR_LABEL_ALGORITHMS:
             params_list = self.neighbor_params
+        elif conformity_str in Label.OUTLIEAR_LABEL_ALGORITHMS:
+            params_list = self.outlier_params
         else:
             params_list = self.param_grid
 

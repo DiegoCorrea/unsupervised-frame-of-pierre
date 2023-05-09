@@ -3,11 +3,14 @@ import logging
 from fcmeans import FCM
 from pandas import DataFrame
 from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN, Birch, OPTICS, BisectingKMeans, SpectralClustering
+from sklearn.covariance import EllipticEnvelope
 from sklearn.ensemble import IsolationForest
+from sklearn.linear_model import SGDOneClassSVM
 from sklearn.metrics import silhouette_score, jaccard_score
 from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.neural_network import BernoulliRBM
+from sklearn.svm import OneClassSVM
 
 from scikit_pierre.distributions.accessible import distributions_funcs_pandas
 from scikit_pierre.measures.accessible import calibration_measures_funcs
@@ -127,6 +130,20 @@ class ConformityAlgorithms:
             self.users_preferences_instance = IsolationForest(n_estimators=params['n_estimators'])
             self.users_candidate_instance = IsolationForest(n_estimators=params['n_estimators'])
             self.users_recommendation_instance = IsolationForest(n_estimators=params['n_estimators'])
+
+        # Outlier Models
+        elif self.conformity_str == Label.OSVM:
+            self.users_preferences_instance = OneClassSVM(nu=params['nu'])
+            self.users_candidate_instance = OneClassSVM(nu=params['nu'])
+            self.users_recommendation_instance = OneClassSVM(nu=params['nu'])
+        elif self.conformity_str == Label.SGD:
+            self.users_preferences_instance = SGDOneClassSVM(nu=params['nu'])
+            self.users_candidate_instance = SGDOneClassSVM(nu=params['nu'])
+            self.users_recommendation_instance = SGDOneClassSVM(nu=params['nu'])
+        elif self.conformity_str == Label.ENVELOPE:
+            self.users_preferences_instance = EllipticEnvelope(contamination=params['nu'])
+            self.users_candidate_instance = EllipticEnvelope(contamination=params['nu'])
+            self.users_recommendation_instance = EllipticEnvelope(contamination=params['nu'])
 
         # Mixture Models
         elif self.conformity_str == Label.GAUSSIAN_MIXTURE:
@@ -255,7 +272,8 @@ class ConformityAlgorithms:
         elif self.conformity_str == Label.AGGLOMERATIVE or self.conformity_str == Label.IF or \
                 self.conformity_str == Label.BIRCH or self.conformity_str == Label.OPTICS or \
                 self.conformity_str == Label.SPECTRAL or self.conformity_str == Label.DBSCAN or \
-                self.conformity_str == Label.LOF:
+                self.conformity_str == Label.LOF or self.conformity_str == Label.SGD or \
+                self.conformity_str == Label.OSVM or self.conformity_str == Label.ENVELOPE:
             self.users_preferences_labels = self.users_preferences_instance.fit_predict(
                 X=self.users_pref_dist_df
             )
@@ -326,6 +344,26 @@ class ConformityAlgorithms:
             weight=self.weight_str, tradeoff=self.tradeoff_str, selector=self.selector_str
         )
 
+    def __label_groups(self):
+        users_preference_score_float = len(set(self.users_preferences_labels))
+        users_cand_item_score_float = len(set(self.users_candidate_labels))
+        user_rec_lists_score_float = len(set(self.users_recommendation_labels))
+
+        data = DataFrame(
+            [[users_preference_score_float], [users_cand_item_score_float], [user_rec_lists_score_float]],
+            columns=[Label.LABEL_SCORE], index=[Label.USERS_PREF, Label.USERS_CAND_ITEMS, Label.USERS_REC_LISTS]
+        )
+
+        print("LABEL_SCORE SCORE:", data)
+
+        SaveAndLoad.save_conformity_metric(
+            data=data, metric=Label.LABEL_SCORE, cluster=self.conformity_str, recommender=self.recommender_str,
+            dataset=self.dataset.get_dataset_name(), trial=self.trial_int, fold=self.fold_int,
+            distribution=self.distribution_str, fairness=self.fairness_str, relevance=self.relevance_str,
+            weight=self.weight_str, tradeoff=self.tradeoff_str, selector=self.selector_str
+        )
+
     def evaluation(self):
         self.__silhouette_avg()
         self.__group_jaccard_score()
+        self.__label_groups()
