@@ -99,6 +99,7 @@ class TwitterMovies(Dataset):
 
         # Clean the items without information and with the label indicating no genre in the item.
         raw_items_df.dropna(inplace=True)
+        raw_items_df[Label.GENRES] = raw_items_df[Label.GENRES].astype(str)
         genre_clean_items = raw_items_df[raw_items_df[Label.GENRES] != '(no genres listed)']
         genre_clean_items = genre_clean_items[genre_clean_items[Label.GENRES] != '']
 
@@ -114,14 +115,15 @@ class TwitterMovies(Dataset):
         self.load_raw_transactions()
 
         def classes(item):
-            if item == '':
+            if str(item) == '':
                 return ''
-            splitted = item.split(',')
+            splitted = item.split('|')
             return [c for c in splitted]
 
         total_of_users = len(self.raw_transactions[Label.USER_ID].unique())
         total_of_items = len(self.raw_items)
         total_of_transactions = len(self.raw_transactions)
+        self.raw_items[Label.GENRES] = self.raw_items[Label.GENRES].astype(str)
         total_of_classes = len(
             set(list(itertools.chain.from_iterable(list(map(classes, self.raw_items[Label.GENRES].tolist()))))))
         print("RAW DATASET INFORMATION")

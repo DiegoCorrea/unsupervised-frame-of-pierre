@@ -58,14 +58,17 @@ def compute_kfold(
     )
     out = Parallel(n_jobs=n_jobs, verbose=10, batch_size=128, require='sharedmem')(delayed_list)
 
-    delayed_concat = (
-        delayed(concat_folds)(train_df, test_df)
-        for train_df, test_df in zip(global_train, global_test)
-    )
-    resp = list(Parallel(
-        n_jobs=n_jobs, verbose=10, batch_size=64, prefer='processes', backend='multiprocessing'
-    )(delayed_concat))
+    # delayed_concat = (
+    #     delayed(concat_folds)(train_df, test_df)
+    #     for train_df, test_df in zip(global_train, global_test)
+    # )
+    # resp = list(Parallel(
+    #     n_jobs=n_jobs, verbose=10, batch_size=64, prefer='processes', backend='multiprocessing'
+    # )(delayed_concat))
 
+    resp = []
+    for train_df, test_df in zip(global_train, global_test):
+        resp.append(concat_folds(train_df, test_df))
     return resp
 
 
