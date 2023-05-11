@@ -109,6 +109,7 @@ class MyAnimeList(Dataset):
 
         # Clean the items without information and with the label indicating no genre in the item.
         print("Dropping No Genres")
+        raw_items_df[Label.GENRES] = raw_items_df[Label.GENRES].astype(str)
         genre_clean_items = raw_items_df[raw_items_df[Label.GENRES] != '']
         del raw_items_df
         genre_clean_items[Label.GENRES] = genre_clean_items[Label.GENRES].str.replace(", ", "|")
