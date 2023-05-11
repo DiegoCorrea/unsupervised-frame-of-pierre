@@ -33,6 +33,7 @@ def mrmc_interface(recommender, dataset,
 
             users_target_dist = pd.concat([
                 dist_func(
+                    user_id=user_id,
                     user_pref_set=user_preference_set,
                     item_classes_set=items_classes_set
                 ) for user_id, user_preference_set in users_preference_set.groupby(by=["USER_ID"])

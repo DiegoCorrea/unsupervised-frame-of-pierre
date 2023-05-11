@@ -30,6 +30,7 @@ def mace_interface(recommender, dataset,
 
             users_target_dist = pd.concat([
                 dist_func(
+                    user_id=user_id,
                     user_pref_set=users_preference_set[users_preference_set['USER_ID'] == user_id],
                     item_classes_set=items_classes_set
                 ) for user_id in users_preference_set['USER_ID'].unique().tolist()

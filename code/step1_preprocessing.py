@@ -130,6 +130,7 @@ class PierreStep1(Step):
         grouped_users_preference_set = users_preference_set.groupby(by=[Label.USER_ID])
         users_pref_dist_df = pd.concat([
             dist_func(
+                user_id=user_id,
                 user_pref_set=user_pref_set,
                 item_classes_set=items_classes_set
             ) for user_id, user_pref_set in grouped_users_preference_set

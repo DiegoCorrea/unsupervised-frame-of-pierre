@@ -199,6 +199,7 @@ class ConformityAlgorithms:
         )
         self.users_cand_items_dist_df = pd.concat([
             self.dist_func(
+                user_id=user_id,
                 user_pref_set=self.users_candidate_items[
                     self.users_candidate_items['USER_ID'] == user_id
                 ].sort_values(by=Label.TRANSACTION_VALUE).head(Constants.RECOMMENDATION_LIST_SIZE),
@@ -218,6 +219,7 @@ class ConformityAlgorithms:
         )
         self.users_rec_lists_dist_df = pd.concat([
             self.dist_func(
+                user_id=user_id,
                 user_pref_set=self.users_recommendation_lists[self.users_recommendation_lists['USER_ID'] == user_id],
                 item_classes_set=self.items_classes_set
             ) for user_id in self.users_recommendation_lists['USER_ID'].unique().tolist()
