@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN, Birch, OPTI
 from sklearn.covariance import EllipticEnvelope
 from sklearn.ensemble import IsolationForest
 from sklearn.linear_model import SGDOneClassSVM
-from sklearn.metrics import silhouette_score, jaccard_score
+from sklearn.metrics import silhouette_score, jaccard_score, calinski_harabasz_score, davies_bouldin_score
 from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.neural_network import BernoulliRBM
@@ -324,6 +324,62 @@ class ConformityAlgorithms:
             weight=self.weight_str, tradeoff=self.tradeoff_str, selector=self.selector_str
         )
 
+    def __calinski_harabasz(self):
+        user_pref_avg = 0.0
+        users_cand_items_avg = 0.0
+        users_rec_lists_avg = 0.0
+
+        if len(set(self.users_preferences_labels)) > 1:
+            user_pref_avg = abs(calinski_harabasz_score(self.users_pref_dist_df, self.users_preferences_labels))
+
+        if len(set(self.users_candidate_labels)) > 1:
+            users_cand_items_avg = abs(calinski_harabasz_score(self.users_cand_items_dist_df, self.users_candidate_labels))
+
+        if len(set(self.users_recommendation_labels)) > 1:
+            users_rec_lists_avg = abs(calinski_harabasz_score(self.users_rec_lists_dist_df, self.users_recommendation_labels))
+
+        data = DataFrame(
+            [[user_pref_avg], [users_cand_items_avg], [users_rec_lists_avg]],
+            columns=[Label.CALINSKI_SCORE], index=[Label.USERS_PREF, Label.USERS_CAND_ITEMS, Label.USERS_REC_LISTS]
+        )
+
+        print("Calinski avg:", data)
+
+        SaveAndLoad.save_conformity_metric(
+            data=data, metric=Label.CALINSKI_SCORE, cluster=self.conformity_str, recommender=self.recommender_str,
+            dataset=self.dataset.get_dataset_name(), trial=self.trial_int, fold=self.fold_int,
+            distribution=self.distribution_str, fairness=self.fairness_str, relevance=self.relevance_str,
+            weight=self.weight_str, tradeoff=self.tradeoff_str, selector=self.selector_str
+        )
+
+    def __davies_bouldin(self):
+        user_pref_avg = 1.0
+        users_cand_items_avg = 1.0
+        users_rec_lists_avg = 1.0
+
+        if len(set(self.users_preferences_labels)) > 1:
+            user_pref_avg = abs(davies_bouldin_score(self.users_pref_dist_df, self.users_preferences_labels))
+
+        if len(set(self.users_candidate_labels)) > 1:
+            users_cand_items_avg = abs(davies_bouldin_score(self.users_cand_items_dist_df, self.users_candidate_labels))
+
+        if len(set(self.users_recommendation_labels)) > 1:
+            users_rec_lists_avg = abs(davies_bouldin_score(self.users_rec_lists_dist_df, self.users_recommendation_labels))
+
+        data = DataFrame(
+            [[user_pref_avg], [users_cand_items_avg], [users_rec_lists_avg]],
+            columns=[Label.DAVIES_SCORE], index=[Label.USERS_PREF, Label.USERS_CAND_ITEMS, Label.USERS_REC_LISTS]
+        )
+
+        print("Davies avg:", data)
+
+        SaveAndLoad.save_conformity_metric(
+            data=data, metric=Label.DAVIES_SCORE, cluster=self.conformity_str, recommender=self.recommender_str,
+            dataset=self.dataset.get_dataset_name(), trial=self.trial_int, fold=self.fold_int,
+            distribution=self.distribution_str, fairness=self.fairness_str, relevance=self.relevance_str,
+            weight=self.weight_str, tradeoff=self.tradeoff_str, selector=self.selector_str
+        )
+
     def __group_jaccard_score(self):
         users_cand_item_score_float = abs(jaccard_score(
             self.users_preferences_labels, self.users_candidate_labels, average='macro'
@@ -369,3 +425,5 @@ class ConformityAlgorithms:
         self.__silhouette_avg()
         self.__group_jaccard_score()
         self.__label_groups()
+        self.__calinski_harabasz()
+        self.__davies_bouldin()

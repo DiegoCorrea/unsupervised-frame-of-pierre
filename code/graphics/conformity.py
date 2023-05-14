@@ -62,7 +62,11 @@ class ConformityGraphics:
         """
         TODO
         """
-
+        data_pref = data[data[Label.CONFORMITY_DIST_MEANING] == Label.USERS_PREF]
+        user_pref_values = [
+            np.mean(data_pref[data_pref[Label.CONFORMITY] == algo][Label.EVALUATION_METRICS].abs().tolist()) for algo in
+            conformity_algos
+        ]
         used_data = data[data[Label.TRADEOFF_WEIGHT_LABEL].isin(Label.CONST_WEIGHT)]
         rec_list_df = used_data[used_data[Label.CONFORMITY_DIST_MEANING] == Label.USERS_REC_LISTS]
 
@@ -70,19 +74,23 @@ class ConformityGraphics:
         ax = fig.add_subplot(1, 1, 1)
         ax.grid(True)
         plt.grid(True)
-        plt.rc('xtick', labelsize=16)
-        plt.rc('ytick', labelsize=16)
+        plt.rc('xtick', labelsize=18)
+        plt.rc('ytick', labelsize=18)
         plt.xlabel("Tradeoff Weight", fontsize=18)
-        plt.ylabel("Silhouette Value", fontsize=18)
+        plt.ylabel("Silhouette Value", fontsize=24)
 
         n = len(conformity_algos)
-        for algo, m, l in zip(conformity_algos, ChartsConfig.markers_list[:n], ChartsConfig.line_style_list[:n]):
+        for algo, m, l, pref in zip(
+                conformity_algos, ChartsConfig.markers_list[:n], ChartsConfig.line_style_list[:n], user_pref_values
+        ):
             df = rec_list_df[rec_list_df[Label.CONFORMITY] == algo]
-            plt.plot([str(x) for x in df[Label.TRADEOFF_WEIGHT_LABEL].tolist()],
-                     df[Label.EVALUATION_METRICS].abs().tolist(), alpha=0.5, linestyle=l, marker=m,
-                     label=str(algo), linewidth=4)
+            plt.plot(
+                ["PREF"] + [str(x) for x in df[Label.TRADEOFF_WEIGHT_LABEL].tolist()],
+                [pref] + df[Label.EVALUATION_METRICS].abs().tolist(),
+                alpha=0.5, linestyle=l, marker=m, label=str(algo), linewidth=4
+            )
 
-        lgd = plt.legend(loc=9, bbox_to_anchor=(0.5, -0.15), ncol=3, prop={'size': 18})
+        lgd = plt.legend(loc=9, bbox_to_anchor=(0.5, -0.20), ncol=3, prop={'size': 18})
         plt.xticks(rotation=30)
 
         # Pasta para salvar a figura
@@ -110,19 +118,21 @@ class ConformityGraphics:
         ax = fig.add_subplot(1, 1, 1)
         ax.grid(True)
         plt.grid(True)
-        plt.rc('xtick', labelsize=16)
-        plt.rc('ytick', labelsize=16)
+        plt.rc('xtick', labelsize=18)
+        plt.rc('ytick', labelsize=18)
         plt.xlabel("Tradeoff Weight", fontsize=18)
-        plt.ylabel("Jaccard Value", fontsize=18)
+        plt.ylabel("Jaccard Value", fontsize=24)
 
         n = len(conformity_algos)
         for algo, m, l in zip(conformity_algos, ChartsConfig.markers_list[:n], ChartsConfig.line_style_list[:n]):
             df = used_data[used_data[Label.CONFORMITY] == algo]
-            plt.plot([str(x) for x in df[Label.TRADEOFF_WEIGHT_LABEL].tolist()],
-                     df[Label.EVALUATION_METRICS].abs().tolist(), alpha=0.5, linestyle=l, marker=m,
-                     label=str(algo), linewidth=4)
+            plt.plot(
+                [str(x) for x in df[Label.TRADEOFF_WEIGHT_LABEL].tolist()],
+                df[Label.EVALUATION_METRICS].abs().tolist(), alpha=0.5, linestyle=l, marker=m,
+                label=str(algo), linewidth=4
+            )
 
-        lgd = plt.legend(loc=9, bbox_to_anchor=(0.5, -0.15), ncol=3, prop={'size': 18})
+        lgd = plt.legend(loc=9, bbox_to_anchor=(0.5, -0.20), ncol=3, prop={'size': 18})
         plt.xticks(rotation=30)
 
         # Pasta para salvar a figura
