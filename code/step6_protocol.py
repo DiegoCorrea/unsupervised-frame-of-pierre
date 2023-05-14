@@ -1,6 +1,6 @@
 import itertools
 import logging
-from statistics import mean
+from statistics import mean, mode
 
 import pandas as pd
 from joblib import Parallel, delayed
@@ -77,8 +77,8 @@ class PierreStep6(Step):
 
     # Conformity parallelization
     def load_conformity_metric_jaccard(
-        self, dataset: str, recommender: str, conformity: str,
-        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+            self, dataset: str, recommender: str, conformity: str,
+            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
     ) -> DataFrame:
         """
         TODO: Docstring
@@ -115,8 +115,8 @@ class PierreStep6(Step):
         return merged_metrics_df
 
     def conformity_jaccard_metric(
-        self, dataset: str, recommender: str, conformity: str,
-        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+            self, dataset: str, recommender: str, conformity: str,
+            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
     ) -> DataFrame:
         """
         TODO: Docstring
@@ -134,8 +134,8 @@ class PierreStep6(Step):
         return jaccard_df
 
     def load_conformity_metric_silhouette(
-        self, dataset: str, recommender: str, conformity: str,
-        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+            self, dataset: str, recommender: str, conformity: str,
+            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
     ) -> DataFrame:
         """
         TODO: Docstring
@@ -172,19 +172,11 @@ class PierreStep6(Step):
             ]
         )
 
-        # df = DataFrame(
-        #     [[recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight]],
-        #     columns=[
-        #         Label.RECOMMENDER, Label.CONFORMITY, Label.TRADEOFF, Label.DISTRIBUTION_LABEL,
-        #         Label.CALIBRATION_MEASURE_LABEL, Label.RELEVANCE, Label.SELECTOR_LABEL, Label.TRADEOFF_WEIGHT_LABEL
-        #     ]
-        # )
-
         return merged_metrics_df
 
     def conformity_silhouette_metric(
-        self, dataset: str, recommender: str, conformity: str,
-        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+            self, dataset: str, recommender: str, conformity: str,
+            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
     ) -> DataFrame:
         """
         TODO: Docstring
@@ -201,6 +193,66 @@ class PierreStep6(Step):
 
         return silhouette_df
 
+    def load_conformity_metric_label(
+            self, dataset: str, recommender: str, conformity: str,
+            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+    ) -> DataFrame:
+        """
+        TODO: Docstring
+        """
+
+        users_pref_list = []
+        users_cand_items_list = []
+        users_rec_lists_list = []
+
+        for trial in range(1, Constants.N_TRIAL_VALUE + 1):
+            for fold in range(1, Constants.K_FOLDS_VALUE + 1):
+                metric_df = SaveAndLoad.load_conformity_metric(
+                    dataset=dataset, trial=trial, fold=fold,
+                    cluster=conformity, metric=Label.LABEL_SCORE, recommender=recommender,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector
+                )
+
+                users_pref_list.append(metric_df.iloc[0][Label.LABEL_SCORE])
+                users_cand_items_list.append(metric_df.iloc[1][Label.LABEL_SCORE])
+                users_rec_lists_list.append(metric_df.iloc[2][Label.LABEL_SCORE])
+
+        merged_metrics_df = DataFrame([
+            [mode(users_pref_list), Label.USERS_PREF,
+             recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight],
+            [mode(users_cand_items_list), Label.USERS_CAND_ITEMS,
+             recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight],
+            [mode(users_rec_lists_list), Label.USERS_REC_LISTS,
+             recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight]],
+            columns=[
+                Label.EVALUATION_METRICS, Label.CONFORMITY_DIST_MEANING,
+                Label.RECOMMENDER, Label.CONFORMITY, Label.TRADEOFF, Label.DISTRIBUTION_LABEL,
+                Label.CALIBRATION_MEASURE_LABEL, Label.RELEVANCE, Label.SELECTOR_LABEL, Label.TRADEOFF_WEIGHT_LABEL
+            ]
+        )
+
+        return merged_metrics_df
+
+    def conformity_labels_metric(
+            self, dataset: str, recommender: str, conformity: str,
+            distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+    ) -> DataFrame:
+        """
+        TODO: Docstring
+        """
+
+        label_df = self.load_conformity_metric_label(
+            dataset=dataset, recommender=recommender, conformity=conformity,
+            tradeoff=tradeoff, distribution=distribution, fairness=fairness,
+            relevance=relevance, weight=weight, selector=selector
+        )
+        label_df['COMBINATION'] = "-".join([
+            recommender, conformity, tradeoff, distribution, fairness, relevance, selector, weight
+        ])
+
+        return label_df
+
     def conformity_parallelization(self):
         """
         TODO: Docstring
@@ -212,6 +264,8 @@ class PierreStep6(Step):
                 self.experimental_settings['relevance'], self.experimental_settings['weight'],
                 self.experimental_settings['tradeoff'], self.experimental_settings['selector']
             ]
+
+            # Jaccard
             jaccard_output = Parallel(n_jobs=Constants.N_CORES)(
                 delayed(self.conformity_jaccard_metric)(
                     dataset=dataset, recommender=recommender, conformity=conformity,
@@ -226,6 +280,7 @@ class PierreStep6(Step):
                 data=jaccard_results, dataset=dataset, metric=Label.JACCARD_SCORE
             )
 
+            # Silhouette
             silhouette_output = Parallel(n_jobs=Constants.N_CORES)(
                 delayed(self.conformity_silhouette_metric)(
                     dataset=dataset, recommender=recommender, conformity=conformity,
@@ -238,6 +293,21 @@ class PierreStep6(Step):
             print(silhouette_results)
             SaveAndLoad.save_conformity_metric_compiled(
                 data=silhouette_results, dataset=dataset, metric=Label.SILHOUETTE_SCORE
+            )
+
+            # Labels
+            label_output = Parallel(n_jobs=Constants.N_CORES)(
+                delayed(self.conformity_labels_metric)(
+                    dataset=dataset, recommender=recommender, conformity=conformity,
+                    distribution=distribution, fairness=fairness, relevance=relevance,
+                    weight=weight, tradeoff=tradeoff, selector=selector
+                ) for recommender, conformity, distribution, fairness, relevance, weight, tradeoff, selector
+                in list(itertools.product(*combination))
+            )
+            label_results = pd.concat(label_output)
+            print(label_results)
+            SaveAndLoad.save_conformity_metric_compiled(
+                data=label_results, dataset=dataset, metric=Label.LABEL_SCORE
             )
 
     # Metrics Parallelization
