@@ -274,9 +274,9 @@ class PierreStep6(Step):
                     weight=weight, tradeoff=tradeoff, selector=selector
                 )
 
-                users_pref_list.append(metric_df.iloc[0][Label.LABEL_SCORE])
-                users_cand_items_list.append(metric_df.iloc[1][Label.LABEL_SCORE])
-                users_rec_lists_list.append(metric_df.iloc[2][Label.LABEL_SCORE])
+                users_pref_list.append(metric_df.iloc[0][Label.DAVIES_SCORE])
+                users_cand_items_list.append(metric_df.iloc[1][Label.DAVIES_SCORE])
+                users_rec_lists_list.append(metric_df.iloc[2][Label.DAVIES_SCORE])
 
         merged_metrics_df = DataFrame([
             [mode(users_pref_list), Label.USERS_PREF,
@@ -334,9 +334,9 @@ class PierreStep6(Step):
                     weight=weight, tradeoff=tradeoff, selector=selector
                 )
 
-                users_pref_list.append(metric_df.iloc[0][Label.LABEL_SCORE])
-                users_cand_items_list.append(metric_df.iloc[1][Label.LABEL_SCORE])
-                users_rec_lists_list.append(metric_df.iloc[2][Label.LABEL_SCORE])
+                users_pref_list.append(metric_df.iloc[0][Label.CALINSKI_SCORE])
+                users_cand_items_list.append(metric_df.iloc[1][Label.CALINSKI_SCORE])
+                users_rec_lists_list.append(metric_df.iloc[2][Label.CALINSKI_SCORE])
 
         merged_metrics_df = DataFrame([
             [mode(users_pref_list), Label.USERS_PREF,
