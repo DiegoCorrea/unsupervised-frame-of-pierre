@@ -198,12 +198,6 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
         lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
         users_preference_set.groupby(by=["USER_ID"])
     )))
-    # print("target")
-    # print(set(users_target_dist.index))
-    # print("recommendation")
-    # print(set(users_recommendation_lists['USER_ID'].unique().tolist()))
-    # print("diff")
-    # print(set(users_recommendation_lists['USER_ID'].unique().tolist()) - set(users_target_dist.index))
 
     users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
     mace_value = mace(
@@ -265,6 +259,8 @@ def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, rel
         lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
         users_preference_set.groupby(by=["USER_ID"])
     )))
+
+    users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
     mrmc_value = mrmc(
         users_target_dist, users_recommendation_lists, items_classes_set, dist_func, fairness_func
     )
