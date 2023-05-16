@@ -432,7 +432,7 @@ class Input:
         """
         experimental_setup = dict()
         experimental_setup['opt'] = Label.EVALUATION_METRICS
-        experimental_setup['metrics'] = Label.REGISTERED_METRICS
+        experimental_setup['metric'] = Label.REGISTERED_METRICS
 
         experimental_setup['recommender'] = Label.REGISTERED_RECOMMENDERS
         experimental_setup['conformity'] = Label.REGISTERED_UNSUPERVISED
