@@ -289,7 +289,7 @@ class SaveAndLoad:
         data.to_csv(path, index=False)
 
     @staticmethod
-    def load_conformity_metric_compiled(dataset: str, metric: str, ext: str = 'csv') -> DataFrame:
+    def load_compiled_metric(dataset: str, metric: str, ext: str = 'csv') -> DataFrame:
         """
         TODO: Docstring
         """

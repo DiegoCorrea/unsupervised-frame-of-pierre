@@ -1,6 +1,7 @@
 import logging
 
 from graphics.conformity import ConformityGraphics
+from graphics.recommender import SingleRecommenderGraphics
 # from evaluations.best_worst import best_and_worst_systems, best_and_worst_fairness_measure
 # from evaluations.hypothesis import welch
 # from graphics.research_questions.perspectives import components_box_graphic, fairness_box_graphic
@@ -86,7 +87,7 @@ class PierreStep7(Step):
             print("|" * 100)
 
             print("Silhouette Lines: Weight by Conformity Algorithms")
-            results = SaveAndLoad.load_conformity_metric_compiled(
+            results = SaveAndLoad.load_compiled_metric(
                 dataset=dataset_name, metric=Label.SILHOUETTE_SCORE
             )
             ConformityGraphics.weight_by_metric_line(
@@ -99,7 +100,7 @@ class PierreStep7(Step):
             )
 
             print("Davis Lines: Weight by Conformity Algorithms")
-            results = SaveAndLoad.load_conformity_metric_compiled(
+            results = SaveAndLoad.load_compiled_metric(
                 dataset=dataset_name, metric=Label.DAVIES_SCORE
             )
             ConformityGraphics.weight_by_metric_line(
@@ -108,7 +109,7 @@ class PierreStep7(Step):
             )
 
             print("Calinski-Harabasz Lines: Weight by Conformity Algorithms")
-            results = SaveAndLoad.load_conformity_metric_compiled(
+            results = SaveAndLoad.load_compiled_metric(
                 dataset=dataset_name, metric=Label.CALINSKI_SCORE
             )
             ConformityGraphics.weight_by_metric_line(
@@ -118,7 +119,7 @@ class PierreStep7(Step):
 
             print("Jaccard Lines: Weight by Conformity Algorithms")
 
-            jaccard_results = SaveAndLoad.load_conformity_metric_compiled(
+            jaccard_results = SaveAndLoad.load_compiled_metric(
                 dataset=dataset_name, metric=Label.JACCARD_SCORE
             )
             ConformityGraphics.weight_by_jaccard_line(
@@ -133,18 +134,38 @@ class PierreStep7(Step):
             print("-"*10, " ", dataset_name, " ", "-"*10)
             print("|" * 100)
 
-            jaccard_results = SaveAndLoad.load_conformity_metric_compiled(
+            jaccard_results = SaveAndLoad.load_compiled_metric(
                 dataset=dataset_name, metric=Label.JACCARD_SCORE
             )
             print(jaccard_results)
 
-            silhlouete_results = SaveAndLoad.load_conformity_metric_compiled(
+            silhlouete_results = SaveAndLoad.load_compiled_metric(
                 dataset=dataset_name, metric=Label.SILHOUETTE_SCORE
             )
             print(silhlouete_results)
 
     def recommender(self):
-        pass
+        for metric in [Label.MAP, Label.MRR, Label.MACE]:
+            all_results = {}
+            for dataset_name in self.experimental_settings['dataset']:
+                print("|" * 100)
+                print("-"*45, " ", dataset_name, " ", "-"*45)
+                print("|" * 100)
+
+                print("Jaccard Lines: Weight by Conformity Algorithms")
+
+                results = SaveAndLoad.load_compiled_metric(
+                    dataset=dataset_name, metric=metric
+                )
+                all_results[dataset_name] = results[results[Label.TRADEOFF_WEIGHT_LABEL].isin(Label.CONST_WEIGHT)]
+                SingleRecommenderGraphics.weight_by_metric_histogram(
+                    data=results[results[Label.TRADEOFF_WEIGHT_LABEL].isin(Label.CONST_WEIGHT)],
+                    dataset_name=dataset_name, metric=metric
+                )
+            SingleRecommenderGraphics.weight_by_metric_all_datasets(
+                data=all_results, y_label=Label.MAP + " Values", metric=Label.MAP
+            )
+
     #     if setup_config['opt'] == "CHART":
     #         charts(setup_config)
     #     elif setup_config['opt'] == "ANALYZE":

@@ -20,8 +20,8 @@ class RegisteredDataset:
     # Allowed to be accessed
     DATASET_LIST = [
         MOVIELENS_ONE_MILLION_DATASET, YAHOO_MOVIES_DATASET, TWITTER_MOVIES_DATASET,
-        TASTE_PROFILE_DATASET,
-        MY_ANIME_LIST_DATASET
+        # TASTE_PROFILE_DATASET,
+        # MY_ANIME_LIST_DATASET
     ]
 
     # Default dataset

@@ -188,6 +188,7 @@ class ConformityAlgorithms:
             dataset=self.dataset.system_name, trial=self.trial_int, fold=self.fold_int,
             distribution=self.distribution_str
         )
+        self.users_pref_dist_df.sort_index(inplace=True)
 
     def __load_users_candidate_items_distribution(self):
         """
@@ -206,6 +207,7 @@ class ConformityAlgorithms:
                 item_classes_set=self.items_classes_set
             ) for user_id in self.users_candidate_items['USER_ID'].unique().tolist()
         ])
+        self.users_cand_items_dist_df.sort_index(inplace=True)
 
     def __load_users_recommendation_lists_distribution(self):
         """
@@ -224,6 +226,7 @@ class ConformityAlgorithms:
                 item_classes_set=self.items_classes_set
             ) for user_id in self.users_recommendation_lists['USER_ID'].unique().tolist()
         ])
+        self.users_rec_lists_dist_df.sort_index(inplace=True)
 
     def prepare_experiment(self):
         """
