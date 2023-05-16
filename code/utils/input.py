@@ -460,7 +460,7 @@ class Input:
                         print('Metric not found! Options is:')
                         print(Label.REGISTERED_METRICS)
                         exit(1)
-                    experimental_setup['metrics'] = [value]
+                    experimental_setup['metric'] = [value]
                 elif param == '-conformity':
                     if value not in Label.REGISTERED_UNSUPERVISED:
                         print('Cluster algorithm not registered! All possibilities are:')
