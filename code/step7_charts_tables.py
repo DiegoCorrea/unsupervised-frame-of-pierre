@@ -163,7 +163,7 @@ class PierreStep7(Step):
                     dataset_name=dataset_name, metric=metric
                 )
             SingleRecommenderGraphics.weight_by_metric_all_datasets(
-                data=all_results, y_label=Label.MAP + " Values", metric=Label.MAP
+                data=all_results, y_label=metric + " Values", metric=metric
             )
 
     #     if setup_config['opt'] == "CHART":

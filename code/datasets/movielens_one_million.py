@@ -67,7 +67,7 @@ class MovielensOneMillion(Dataset):
         self.set_transactions(
             new_transactions=MovielensOneMillion.cut_users(filtered_raw_transactions))
 
-        self.transactions[Label.TRANSACTION_VALUE] = np.where(self.transactions[Label.TRANSACTION_VALUE] >= 4, 1, 0)
+        # self.transactions[Label.TRANSACTION_VALUE] = np.where(self.transactions[Label.TRANSACTION_VALUE] >= 4, 1, 0)
 
         # Save the clean transactions as CSV.
         self.transactions.to_csv(
