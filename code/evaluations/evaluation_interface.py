@@ -1,8 +1,6 @@
 import logging
-import os
 
 import pandas as pd
-from numpy import mean
 
 from datasets.registred_datasets import RegisteredDataset
 from scikit_pierre.classes.genre import genre_probability_approach
@@ -12,7 +10,6 @@ from scikit_pierre.metrics.mace import mace
 from scikit_pierre.metrics.map import mean_average_precision_map
 from scikit_pierre.metrics.mrmc import mrmc
 from scikit_pierre.metrics.mrr import mean_reciprocal_rank_map
-from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
 from settings.save_and_load import SaveAndLoad
@@ -20,70 +17,22 @@ from settings.save_and_load import SaveAndLoad
 logger = logging.getLogger(__name__)
 
 
-def evaluation_interface(recommender, dataset, distribution, fairness, relevance, weight, tradeoff, selector):
-    # Load dataset
-    dataset_instance = RegisteredDataset.load_dataset(dataset)
-    items_set = dataset_instance.get_items()
-    items_classes_set = genre_probability_approach(item_set=items_set)
-
-    dist_func = distributions_funcs_pandas(distribution)
-    fairness_func = calibration_measures_funcs(measure=fairness)
-
-    mrr_values = []
-    map_values = []
-    mrmc_values = []
-    mace_values = []
-
-    for trial in list(range(1, Constants.N_TRIAL_VALUE + 1)):
-        for fold in list(range(1, Constants.K_FOLDS_VALUE + 1)):
-            print("Trial: ", trial, " | ", "Fold: ", fold, " <> ",
-                  "-".join([recommender, tradeoff, distribution, fairness, relevance, selector, weight]))
-            path = PathDirFile.get_recommendation_list_file(
-                dataset=dataset, recommender=recommender, trial=trial, fold=fold,
-                tradeoff=tradeoff, distribution=distribution, fairness=fairness,
-                relevance=relevance, tradeoff_weight=weight, select_item=selector)
-            users_recommendation_lists = pd.read_csv(path)
-
-            # Rank Metrics
-            users_test_items = dataset_instance.get_test_transactions(trial=trial, fold=fold)
-            mrr_values.append(mean_reciprocal_rank_map(users_recommendation_lists, users_test_items))
-            map_values.append(mean_average_precision_map(users_recommendation_lists, users_test_items))
-
-            # Calibration Metrics
-            users_preference_set = dataset_instance.get_train_transactions(trial=trial, fold=fold)
-            users_target_dist = pd.concat(list(map(
-                lambda pref: dist_func(user_pref_set=pref[1], item_classes_set=items_classes_set),
-                users_preference_set.groupby(by=["USER_ID"])
-            )))
-            mrmc_values.append(mrmc(
-                users_target_dist, users_recommendation_lists, items_classes_set, dist_func, fairness_func
-            ))
-            mace_values.append(mace(
-                users_target_dist, users_recommendation_lists, items_classes_set, dist_func
-            ))
-    return {'MRR': mean(mrr_values), 'MAP': mean(map_values), 'MRMC': mean(mrmc_values), 'MACE': mean(mace_values)}
-
-
-# ############################################################################################## #
-# ############################################################################################## #
 def applying_mrr(recommender, dataset, trial, fold, distribution, fairness, relevance, weight, tradeoff, selector):
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_metric_fold_file_by_name(
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-        filename='MRR.csv'
-    )
     try:
+        metric_file = SaveAndLoad.load_recommender_metric(
+            metric='MRR',
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+        )
         # Check integrity
-        if os.path.exists(exists_file):
-            metric_file = pd.read_csv(exists_file)
-            if len(metric_file) == 1:
-                return "AlreadyDone"
+        if len(metric_file) == 1:
+            return "AlreadyDone"
     except Exception as e:
-        logger.error(" - ".join([str(e), exists_file]))
+        logger.error(" - ".join([str(e)]))
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -102,13 +51,11 @@ def applying_mrr(recommender, dataset, trial, fold, distribution, fairness, rele
         mrr_value
     ]], columns=['MRR'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='MRR.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results, metric='MRR',
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector
     )
     return "Finished"
 
@@ -117,20 +64,18 @@ def applying_map(recommender, dataset, trial, fold, distribution, fairness, rele
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_metric_fold_file_by_name(
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-        filename='MAP.csv'
-    )
     try:
+        metric_file = SaveAndLoad.load_recommender_metric(
+            metric='MAP',
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+        )
         # Check integrity
-        if os.path.exists(exists_file):
-            metric_file = pd.read_csv(exists_file)
-            if len(metric_file) == 1:
-                return "AlreadyDone"
+        if len(metric_file) == 1:
+            return "AlreadyDone"
     except Exception as e:
-        logger.error(" - ".join([str(e), exists_file]))
+        logger.error(" - ".join([str(e)]))
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -149,13 +94,11 @@ def applying_map(recommender, dataset, trial, fold, distribution, fairness, rele
         map_value
     ]], columns=['MAP'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='MAP.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results, metric="MAP",
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector
     )
     return "Finished"
 
@@ -164,20 +107,18 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_metric_fold_file_by_name(
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-        filename='MACE.csv'
-    )
     try:
+        metric_file = SaveAndLoad.load_recommender_metric(
+            metric="MACE",
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+        )
         # Check integrity
-        if os.path.exists(exists_file):
-            metric_file = pd.read_csv(exists_file)
-            if len(metric_file) == 1:
-                return "AlreadyDone"
+        if len(metric_file) == 1:
+            return "AlreadyDone"
     except Exception as e:
-        logger.error(" - ".join([str(e), exists_file]))
+        logger.error(" - ".join([str(e)]))
 
     dataset_instance = RegisteredDataset.load_dataset(dataset)
 
@@ -198,12 +139,6 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
         distribution=distribution
     )
 
-    # users_preference_set = dataset_instance.get_train_transactions(trial=trial, fold=fold)
-    # users_target_dist = pd.concat(list(map(
-    #     lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
-    #     users_preference_set.groupby(by=["USER_ID"])
-    # )))
-
     users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
     mace_value = mace(
         users_pref_dist_df, users_recommendation_lists, items_classes_set, dist_func
@@ -213,13 +148,11 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
         mace_value
     ]], columns=['MACE'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='MACE.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results, metric="MACE",
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector
     )
     return "Finished"
 
@@ -228,20 +161,18 @@ def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, rel
     """
     Function that apply the evaluation metrics.
     """
-    exists_file = PathDirFile.get_metric_fold_file_by_name(
-        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-        distribution=distribution, fairness=fairness, relevance=relevance,
-        tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-        filename='MRMC.csv'
-    )
     try:
+        metric_file = SaveAndLoad.load_recommender_metric(
+            metric="MRMC",
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            weight=weight, tradeoff=tradeoff, selector=selector
+        )
         # Check integrity
-        if os.path.exists(exists_file):
-            metric_file = pd.read_csv(exists_file)
-            if len(metric_file) == 1:
-                return "AlreadyDone"
+        if len(metric_file) == 1:
+            return "AlreadyDone"
     except Exception as e:
-        logger.error(" - ".join([str(e), exists_file]))
+        logger.error(" - ".join([str(e)]))
 
     # Load dataset
     dataset_instance = RegisteredDataset.load_dataset(dataset)
@@ -262,13 +193,6 @@ def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, rel
         distribution=distribution
     )
 
-    # Calibration Metrics
-    # users_preference_set = dataset_instance.get_train_transactions(trial=trial, fold=fold)
-    # users_target_dist = pd.concat(list(map(
-    #     lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
-    #     users_preference_set.groupby(by=["USER_ID"])
-    # )))
-
     users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
     mrmc_value = mrmc(
         users_pref_dist_df, users_recommendation_lists, items_classes_set, dist_func, fairness_func
@@ -278,13 +202,11 @@ def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, rel
         mrmc_value
     ]], columns=['MRMC'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='MRMC.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results, metric="MRMC",
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector
     )
     return "Finished"
 
@@ -302,12 +224,10 @@ def execution_time_fold(recommender, dataset, trial, fold,
         time_values
     ]], columns=['TIME'])
 
-    results.to_csv(
-        PathDirFile.set_metric_fold_file_by_name(
-            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
-            distribution=distribution, fairness=fairness, relevance=relevance,
-            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
-            filename='TIME.csv'
-        ), index=False
+    SaveAndLoad.save_recommender_metric(
+        data=results, metric="TIME",
+        recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+        distribution=distribution, fairness=fairness, relevance=relevance,
+        weight=weight, tradeoff=tradeoff, selector=selector
     )
     return "Finished"

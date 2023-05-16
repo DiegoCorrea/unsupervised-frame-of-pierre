@@ -237,6 +237,45 @@ class SaveAndLoad:
         return read_csv(path)
 
     # ########################################################################################### #
+    # [STEP 5] Metrics step methods - Recommender Evaluation
+    # ########################################################################################### #
+    @staticmethod
+    def save_recommender_metric(
+        data: DataFrame,
+        metric: str, recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str
+    ):
+        """
+        TODO: Docstring
+        """
+        data.to_csv(
+            PathDirFile.set_recommender_metric_fold_file(
+                recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+                distribution=distribution, fairness=fairness, relevance=relevance,
+                tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
+                filename=metric + '.csv'
+            ),
+            index=False
+        )
+
+    @staticmethod
+    def load_recommender_metric(
+        metric: str, recommender: str, dataset: str, trial: int, fold: int,
+        distribution: str, fairness: str, relevance: str, weight: str, tradeoff: str, selector: str,
+        ext: str = 'csv'
+    ) -> DataFrame:
+        """
+        TODO: Docstring
+        """
+        path = PathDirFile.get_recommender_metric_fold_file(
+            recommender=recommender, dataset=dataset, trial=trial, fold=fold,
+            distribution=distribution, fairness=fairness, relevance=relevance,
+            tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
+            filename=metric + '.' + ext
+        )
+        return read_csv(path)
+
+    # ########################################################################################### #
     # [STEP 6] Compile Metrics step methods - Conformity Evaluation
     # ########################################################################################### #
     @staticmethod

@@ -619,9 +619,10 @@ class PathDirFile:
         return "/".join([save_in_dir, PathDirFile.METRICS_FILE])
 
     @staticmethod
-    def set_metric_fold_file_by_name(dataset: str, recommender: str, trial: int, fold: int,
-                                     tradeoff: str, distribution: str, fairness: str, relevance: str,
-                                     tradeoff_weight: str, select_item: str, filename: str) -> str:
+    def set_recommender_metric_fold_file(
+            dataset: str, recommender: str, trial: int, fold: int,
+            tradeoff: str, distribution: str, fairness: str, relevance: str,
+            tradeoff_weight: str, select_item: str, filename: str) -> str:
         """
         Method to set the file path, which deal with the postprocessing step execution time.
 
@@ -641,17 +642,19 @@ class PathDirFile:
         {distribution_component}/{relevance_component}/{selector_component}/{fairness_component}/{tradeoff_weight_component}/
         trial-{trial}/fold-{fold}/{filename}.
         """
-        save_in_dir = "/".join([PathDirFile.DATA_DIR, 'app', dataset, 'metrics', recommender,
-                                tradeoff, distribution, relevance, select_item, fairness, tradeoff_weight,
-                                'trial-' + str(trial), 'fold-' + str(fold)])
+        save_in_dir = "/".join([
+            PathDirFile.EXPERIMENT_DIR, dataset, 'metrics', recommender,
+            tradeoff, distribution, relevance, select_item, fairness, tradeoff_weight,
+            'trial-' + str(trial), 'fold-' + str(fold)])
         if not os.path.exists(save_in_dir):
             os.makedirs(save_in_dir)
         return "/".join([save_in_dir, filename])
 
     @staticmethod
-    def get_metric_fold_file_by_name(dataset: str, recommender: str, trial: int, fold: int,
-                                     tradeoff: str, distribution: str, fairness: str, relevance: str,
-                                     tradeoff_weight: str, select_item: str, filename: str) -> str:
+    def get_recommender_metric_fold_file(
+            dataset: str, recommender: str, trial: int, fold: int,
+            tradeoff: str, distribution: str, fairness: str, relevance: str,
+            tradeoff_weight: str, select_item: str, filename: str) -> str:
         """
         Method to get the file path, which deal with the postprocessing step execution time.
 
@@ -671,9 +674,10 @@ class PathDirFile:
         {distribution_component}/{relevance_component}/{selector_component}/{fairness_component}/{tradeoff_weight_component}/
         trial-{trial}/fold-{fold}/{filename}.
         """
-        save_in_dir = "/".join([PathDirFile.DATA_DIR, 'app', dataset, 'metrics', recommender,
-                                tradeoff, distribution, relevance, select_item, fairness, tradeoff_weight,
-                                'trial-' + str(trial), 'fold-' + str(fold)])
+        save_in_dir = "/".join([
+            PathDirFile.EXPERIMENT_DIR, dataset, 'metrics', recommender,
+            tradeoff, distribution, relevance, select_item, fairness, tradeoff_weight,
+            'trial-' + str(trial), 'fold-' + str(fold)])
         return "/".join([save_in_dir, filename])
 
     @staticmethod

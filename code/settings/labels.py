@@ -98,6 +98,7 @@ class Label:
     ########################################################
     # Evaluation Metric labels
     EVALUATION_METRICS = 'EVALUATION_METRICS'
+    RECOMMENDER_METRIC = 'RECOMMENDER_METRIC'
     METRIC_OPT = [CONFORMITY, EVALUATION_METRICS]
     # # Ranking Metrics
     MAP = 'MAP'
