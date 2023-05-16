@@ -15,6 +15,7 @@ from scikit_pierre.metrics.mrr import mean_reciprocal_rank_map
 from settings.constants import Constants
 from settings.labels import Label
 from settings.path_dir_file import PathDirFile
+from settings.save_and_load import SaveAndLoad
 
 logger = logging.getLogger(__name__)
 
@@ -192,16 +193,20 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
     items_classes_set = genre_probability_approach(item_set=items_set)
 
     dist_func = distributions_funcs_pandas(distribution)
+    users_pref_dist_df = SaveAndLoad.load_user_preference_distribution(
+        dataset=dataset.system_name, trial=trial, fold=fold,
+        distribution=distribution
+    )
 
-    users_preference_set = dataset_instance.get_train_transactions(trial=trial, fold=fold)
-    users_target_dist = pd.concat(list(map(
-        lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
-        users_preference_set.groupby(by=["USER_ID"])
-    )))
+    # users_preference_set = dataset_instance.get_train_transactions(trial=trial, fold=fold)
+    # users_target_dist = pd.concat(list(map(
+    #     lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
+    #     users_preference_set.groupby(by=["USER_ID"])
+    # )))
 
     users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
     mace_value = mace(
-        users_target_dist, users_recommendation_lists, items_classes_set, dist_func
+        users_pref_dist_df, users_recommendation_lists, items_classes_set, dist_func
     )
 
     results = pd.DataFrame([[
@@ -252,17 +257,21 @@ def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, rel
         relevance=relevance, tradeoff_weight=weight, select_item=selector
     )
     users_recommendation_lists = pd.read_csv(path)
+    users_pref_dist_df = SaveAndLoad.load_user_preference_distribution(
+        dataset=dataset.system_name, trial=trial, fold=fold,
+        distribution=distribution
+    )
 
     # Calibration Metrics
-    users_preference_set = dataset_instance.get_train_transactions(trial=trial, fold=fold)
-    users_target_dist = pd.concat(list(map(
-        lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
-        users_preference_set.groupby(by=["USER_ID"])
-    )))
+    # users_preference_set = dataset_instance.get_train_transactions(trial=trial, fold=fold)
+    # users_target_dist = pd.concat(list(map(
+    #     lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
+    #     users_preference_set.groupby(by=["USER_ID"])
+    # )))
 
     users_recommendation_lists[Label.USER_ID] = users_recommendation_lists[Label.USER_ID].astype(str)
     mrmc_value = mrmc(
-        users_target_dist, users_recommendation_lists, items_classes_set, dist_func, fairness_func
+        users_pref_dist_df, users_recommendation_lists, items_classes_set, dist_func, fairness_func
     )
 
     results = pd.DataFrame([[
