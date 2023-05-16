@@ -215,7 +215,8 @@ class SaveAndLoad:
                 distribution=distribution, fairness=fairness, relevance=relevance,
                 tradeoff_weight=weight, tradeoff=tradeoff, select_item=selector,
                 cluster=cluster, filename=metric + '.csv'
-            )
+            ),
+            index=False
         )
 
     @staticmethod
@@ -246,7 +247,7 @@ class SaveAndLoad:
         path = PathDirFile.set_conformity_metric_file(
             dataset=dataset, filename=metric, ext=ext
         )
-        data.to_csv(path)
+        data.to_csv(path, index=False)
 
     @staticmethod
     def load_conformity_metric_compiled(dataset: str, metric: str, ext: str = 'csv') -> DataFrame:
