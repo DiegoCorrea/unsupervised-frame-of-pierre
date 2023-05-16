@@ -194,7 +194,7 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
 
     users_preference_set = dataset_instance.get_train_transactions(trial=trial, fold=fold)
     users_target_dist = pd.concat(list(map(
-        lambda pref: dist_func(user_pref_set=pref[1], item_classes_set=items_classes_set),
+        lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
         users_preference_set.groupby(by=["USER_ID"])
     )))
     mace_value = mace(
@@ -253,7 +253,7 @@ def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, rel
     # Calibration Metrics
     users_preference_set = dataset_instance.get_train_transactions(trial=trial, fold=fold)
     users_target_dist = pd.concat(list(map(
-        lambda pref: dist_func(user_pref_set=pref[1], item_classes_set=items_classes_set),
+        lambda pref: dist_func(user_id=pref[0], user_pref_set=pref[1], item_classes_set=items_classes_set),
         users_preference_set.groupby(by=["USER_ID"])
     )))
     mrmc_value = mrmc(
