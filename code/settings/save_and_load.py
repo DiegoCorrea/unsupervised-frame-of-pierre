@@ -276,14 +276,14 @@ class SaveAndLoad:
         return read_csv(path)
 
     # ########################################################################################### #
-    # [STEP 6] Compile Metrics step methods - Conformity Evaluation
+    # [STEP 6] Compile Metrics step methods - Compiled Evaluation Metric
     # ########################################################################################### #
     @staticmethod
-    def save_conformity_metric_compiled(data: DataFrame, dataset: str, metric: str, ext: str = 'csv'):
+    def save_compiled_metric(data: DataFrame, dataset: str, metric: str, ext: str = 'csv'):
         """
         TODO: Docstring
         """
-        path = PathDirFile.set_conformity_metric_file(
+        path = PathDirFile.set_compiled_metric_file(
             dataset=dataset, filename=metric, ext=ext
         )
         data.to_csv(path, index=False)
@@ -293,7 +293,7 @@ class SaveAndLoad:
         """
         TODO: Docstring
         """
-        path = PathDirFile.set_conformity_metric_file(
+        path = PathDirFile.get_compiled_metric_file(
             dataset=dataset, filename=metric, ext=ext
         )
         return read_csv(path)

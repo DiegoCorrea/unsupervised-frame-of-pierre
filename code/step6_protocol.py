@@ -398,7 +398,7 @@ class PierreStep6(Step):
             )
             jaccard_results = pd.concat(jaccard_output)
             print(jaccard_results)
-            SaveAndLoad.save_conformity_metric_compiled(
+            SaveAndLoad.save_compiled_metric(
                 data=jaccard_results, dataset=dataset, metric=Label.JACCARD_SCORE
             )
 
@@ -413,7 +413,7 @@ class PierreStep6(Step):
             )
             silhouette_results = pd.concat(silhouette_output)
             print(silhouette_results)
-            SaveAndLoad.save_conformity_metric_compiled(
+            SaveAndLoad.save_compiled_metric(
                 data=silhouette_results, dataset=dataset, metric=Label.SILHOUETTE_SCORE
             )
 
@@ -428,7 +428,7 @@ class PierreStep6(Step):
             )
             label_results = pd.concat(label_output)
             print(label_results)
-            SaveAndLoad.save_conformity_metric_compiled(
+            SaveAndLoad.save_compiled_metric(
                 data=label_results, dataset=dataset, metric=Label.LABEL_SCORE
             )
 
@@ -443,7 +443,7 @@ class PierreStep6(Step):
             )
             davies_results = pd.concat(davies_output)
             print(davies_results)
-            SaveAndLoad.save_conformity_metric_compiled(
+            SaveAndLoad.save_compiled_metric(
                 data=davies_results, dataset=dataset, metric=Label.DAVIES_SCORE
             )
 
@@ -458,7 +458,7 @@ class PierreStep6(Step):
             )
             calinski_results = pd.concat(calinski_output)
             print(calinski_results)
-            SaveAndLoad.save_conformity_metric_compiled(
+            SaveAndLoad.save_compiled_metric(
                 data=calinski_results, dataset=dataset, metric=Label.CALINSKI_SCORE
             )
 
@@ -469,25 +469,27 @@ class PierreStep6(Step):
         TODO: Docstring
         """
         for dataset in self.experimental_settings['dataset']:
-            combination = [
-                self.experimental_settings['recommender'], self.experimental_settings['metric'],
-                self.experimental_settings['distribution'], self.experimental_settings['fairness'],
-                self.experimental_settings['relevance'], self.experimental_settings['weight'],
-                self.experimental_settings['tradeoff'], self.experimental_settings['selector']
-            ]
-            output = Parallel(n_jobs=Constants.N_CORES)(
-                delayed(MetricComprises.it_comprises_recommender_metric)(
-                    recommender=recommender, dataset=dataset, metric=metric,
-                    distribution=distribution, fairness=fairness, relevance=relevance,
-                    weight=weight, tradeoff=tradeoff, selector=selector
-                ) for recommender, metric, distribution, fairness, relevance, weight, tradeoff, selector
-                in list(itertools.product(*combination))
-            )
-            # print(output)
-            results = pd.concat(output)
-            results.sort_values(by=['MAP'], ascending=False, inplace=True)
-            # print(results)
-            results.to_csv(PathDirFile.set_decision_file(self.experimental_settings['dataset'][0]), index=False)
+            for metric in self.experimental_settings['metric']:
+                combination = [
+                    self.experimental_settings['recommender'],
+                    self.experimental_settings['distribution'], self.experimental_settings['fairness'],
+                    self.experimental_settings['relevance'], self.experimental_settings['weight'],
+                    self.experimental_settings['tradeoff'], self.experimental_settings['selector']
+                ]
+                output = Parallel(n_jobs=Constants.N_CORES)(
+                    delayed(MetricComprises.it_comprises_recommender_metric)(
+                        recommender=recommender, dataset=dataset, metric=metric,
+                        distribution=distribution, fairness=fairness, relevance=relevance,
+                        weight=weight, tradeoff=tradeoff, selector=selector
+                    ) for recommender, distribution, fairness, relevance, weight, tradeoff, selector
+                    in list(itertools.product(*combination))
+                )
+
+                results = pd.concat(output)
+
+                SaveAndLoad.save_compiled_metric(
+                    data=results, dataset=dataset, metric=metric
+                )
 
 
 if __name__ == '__main__':
