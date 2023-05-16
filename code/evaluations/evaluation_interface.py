@@ -194,7 +194,7 @@ def applying_mace(recommender, dataset, trial, fold, distribution, fairness, rel
 
     dist_func = distributions_funcs_pandas(distribution)
     users_pref_dist_df = SaveAndLoad.load_user_preference_distribution(
-        dataset=dataset.system_name, trial=trial, fold=fold,
+        dataset=dataset_instance.system_name, trial=trial, fold=fold,
         distribution=distribution
     )
 
@@ -258,7 +258,7 @@ def applying_mrmc(recommender, dataset, trial, fold, distribution, fairness, rel
     )
     users_recommendation_lists = pd.read_csv(path)
     users_pref_dist_df = SaveAndLoad.load_user_preference_distribution(
-        dataset=dataset.system_name, trial=trial, fold=fold,
+        dataset=dataset_instance.system_name, trial=trial, fold=fold,
         distribution=distribution
     )
 
