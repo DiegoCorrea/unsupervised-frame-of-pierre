@@ -81,8 +81,7 @@ class SaveAndLoad:
         data.to_csv(
             PathDirFile.set_preference_distribution_file(
                 dataset=dataset, fold=fold, trial=trial, filename=distribution + '.' + ext
-            ),
-            index=False
+            )
         )
 
     @staticmethod
