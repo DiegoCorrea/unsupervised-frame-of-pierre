@@ -1,1 +1,1 @@
-{"eps": 0.05, "metric": "hamming", "min_samples": 2}
+{"eps": 0.05, "metric": "braycurtis", "min_samples": 3}

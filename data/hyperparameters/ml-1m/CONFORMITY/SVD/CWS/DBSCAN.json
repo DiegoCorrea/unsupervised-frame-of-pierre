@@ -1,1 +1,1 @@
-{"eps": 0.45, "metric": "cityblock", "min_samples": 2}
+{"eps": 0.4, "metric": "cityblock", "min_samples": 2}

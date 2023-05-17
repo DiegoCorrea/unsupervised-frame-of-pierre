@@ -1,1 +1,1 @@
-{"eps": 0.4, "metric": "correlation", "min_samples": 23}
+{"eps": 0.45, "metric": "chebyshev", "min_samples": 23}
