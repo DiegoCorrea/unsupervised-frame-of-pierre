@@ -152,7 +152,7 @@ class PierreStep7(Step):
                 print("-"*45, " ", dataset_name, " ", "-"*45)
                 print("|" * 100)
 
-                print("Jaccard Lines: Weight by Conformity Algorithms")
+                print("Recommender dataset: Weight by Conformity Algorithms")
 
                 results = SaveAndLoad.load_compiled_metric(
                     dataset=dataset_name, metric=metric
@@ -162,6 +162,9 @@ class PierreStep7(Step):
                     data=results[results[Label.TRADEOFF_WEIGHT_LABEL].isin(Label.CONST_WEIGHT)],
                     dataset_name=dataset_name, metric=metric
                 )
+            SingleRecommenderGraphics.weight_by_metric_all_datasets(
+                data=all_results, y_label=metric + " Values", metric=metric
+            )
             SingleRecommenderGraphics.weight_by_metric_all_datasets(
                 data=all_results, y_label=metric + " Values", metric=metric
             )

@@ -46,12 +46,12 @@ class SingleRecommenderGraphics:
         """
         TODO
         """
-        fig = plt.figure(figsize=(8, 6))
-        ax = fig.add_subplot(1, 1, 1)
-        ax.grid(True)
         plt.grid(True)
         plt.rc('xtick', labelsize=18)
         plt.rc('ytick', labelsize=18)
+        fig = plt.figure(figsize=(8, 6))
+        ax = fig.add_subplot(1, 1, 1)
+        ax.grid(True)
         plt.xlabel("Tradeoff Weight", fontsize=18)
         plt.ylabel(y_label, fontsize=24)
 
